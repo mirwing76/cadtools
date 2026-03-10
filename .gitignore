@@ -1,1 +1,8 @@
 autocad-map-odt-workspace/
+
+# Visual Studio / MSBuild
+bin/
+obj/
+*.user
+*.suo
+.vs/

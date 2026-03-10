@@ -36,7 +36,7 @@ Point3d origin = Point3d.Origin; // (0, 0, 0)
 // 속성
 double x = pt.X;  double y = pt.Y;  double z = pt.Z;
 // 두 점 사이 거리 / 벡터
-double dist = pt1.GetDistanceTo(pt2);
+double dist = pt1.DistanceTo(pt2);
 Vector3d vec = pt1.GetVectorTo(pt2);
 // 변환 행렬 적용 (이동, 회전, 스케일 등)
 Point3d moved = pt.TransformBy(Matrix3d.Displacement(new Vector3d(5, 0, 0)));
@@ -250,8 +250,8 @@ if (angle < 0) angle += Math.PI * 2.0; // 0~2PI 정규화
 ### 거리 / 중점 / Offset
 
 ```csharp
-// 두 점 사이 거리
-double distance = pt1.GetDistanceTo(pt2);
+// 두 점 사이 거리 (Point3d는 DistanceTo, Point2d는 GetDistanceTo)
+double distance = pt1.DistanceTo(pt2);
 
 // 두 점의 중점
 Point3d MidPoint(Point3d p1, Point3d p2) => new Point3d(

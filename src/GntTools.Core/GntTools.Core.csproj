@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+          Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A1B2C3D4-0001-0000-0000-000000000001}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GntTools.Core</RootNamespace>
+    <AssemblyName>GntTools.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AcDbMgd">
+      <HintPath>..\..\lib\AcDbMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcMgd">
+      <HintPath>..\..\lib\AcMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcCoreMgd">
+      <HintPath>..\..\lib\AcCoreMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ManagedMapApi">
+      <HintPath>..\..\lib\ManagedMapApi.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Odt\OdtFieldDef.cs" />
+    <Compile Include="Odt\IOdtSchema.cs" />
+    <Compile Include="Odt\PipeCommonSchema.cs" />
+    <Compile Include="Odt\PipeCommonRecord.cs" />
+    <Compile Include="Odt\OdtManager.cs" />
+    <Compile Include="Selection\EntitySelector.cs" />
+    <Compile Include="Geometry\DepthResult.cs" />
+    <Compile Include="Geometry\DepthCalculator.cs" />
+    <Compile Include="Geometry\PolylineHelper.cs" />
+    <Compile Include="Geometry\ViewportManager.cs" />
+    <Compile Include="Drawing\LayerHelper.cs" />
+    <Compile Include="Drawing\TextStyleHelper.cs" />
+    <Compile Include="Drawing\ColorHelper.cs" />
+    <Compile Include="Drawing\TextWriter.cs" />
+    <Compile Include="Drawing\LeaderWriter.cs" />
+    <Compile Include="XData\XDataManager.cs" />
+    <Compile Include="Settings\DomainSettings.cs" />
+    <Compile Include="Settings\AppSettings.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

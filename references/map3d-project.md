@@ -114,9 +114,9 @@ Tables odTables = project.ODTables;
 
 // === OD 테이블 생성 ===
 FieldDefinitions fieldDefs = project.MapUtility.NewODFieldDefinitions();
-fieldDefs.AddColumn(FieldDefinition.Create("OWNER", "소유자", FieldType.Character), 0);
-fieldDefs.AddColumn(FieldDefinition.Create("AREA", "면적", FieldType.Double), 1);
-fieldDefs.AddColumn(FieldDefinition.Create("ZONE_CODE", "용도코드", FieldType.Integer), 2);
+fieldDefs.AddColumn(FieldDefinition.Create("OWNER", "소유자", Constants.DataType.Character), 0);
+fieldDefs.AddColumn(FieldDefinition.Create("AREA", "면적", Constants.DataType.Real), 1);
+fieldDefs.AddColumn(FieldDefinition.Create("ZONE_CODE", "용도코드", Constants.DataType.Integer), 2);
 odTables.Add("PARCEL", fieldDefs, "필지 속성", true);
 
 // === 레코드 추가 (엔티티에 OD 연결) ===
@@ -156,8 +156,8 @@ using (Table table = odTables["PARCEL"])
 
 // 분류용 OD 테이블 생성
 FieldDefinitions classDefs = project.MapUtility.NewODFieldDefinitions();
-classDefs.AddColumn(FieldDefinition.Create("CLASS_NAME", "분류명", FieldType.Character), 0);
-classDefs.AddColumn(FieldDefinition.Create("CLASS_CODE", "분류코드", FieldType.Integer), 1);
+classDefs.AddColumn(FieldDefinition.Create("CLASS_NAME", "분류명", Constants.DataType.Character), 0);
+classDefs.AddColumn(FieldDefinition.Create("CLASS_CODE", "분류코드", Constants.DataType.Integer), 1);
 odTables.Add("CLASSIFICATION", classDefs, "분류 테이블", true);
 
 // 엔티티에 분류 할당
@@ -266,10 +266,10 @@ public static Dictionary<string, object> ReadOD(ObjectId eid, string tableName)
             var fd = table.FieldDefinitions[i];
             result[fd.Name] = fd.Type switch
             {
-                FieldType.Character => rec[i].StrValue,
-                FieldType.Integer   => rec[i].Int32Value,
-                FieldType.Double    => rec[i].DoubleValue,
-                FieldType.Real      => rec[i].DoubleValue,
+                Constants.DataType.Character => rec[i].StrValue,
+                Constants.DataType.Integer   => rec[i].Int32Value,
+                Constants.DataType.Real    => rec[i].DoubleValue,
+                Constants.DataType.Real      => rec[i].DoubleValue,
                 _                   => rec[i].StrValue
             };
         }

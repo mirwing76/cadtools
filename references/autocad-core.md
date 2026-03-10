@@ -26,6 +26,10 @@ using Autodesk.AutoCAD.Colors;                     // 색상
 ```
 
 ```csharp
+// 어셈블리 속성 — 프로젝트에 반드시 한 번 선언 (AssemblyInfo.cs 또는 소스 파일 최상단)
+[assembly: ExtensionApplication(typeof(MyNamespace.MyPlugin))]   // 초기화 클래스 지정 (null 가능)
+[assembly: CommandClass(typeof(MyNamespace.MyCommands))]         // 명령 클래스 지정 (생략 시 전체 검색)
+
 // 플러그인 진입점 — AutoCAD 로드 시 자동 초기화
 public class MyPlugin : IExtensionApplication
 {

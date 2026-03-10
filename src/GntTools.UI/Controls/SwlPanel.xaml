@@ -1,0 +1,117 @@
+<UserControl x:Class="GntTools.UI.Controls.SwlPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Padding="8">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <!-- 기본정보 -->
+            <GroupBox Header="기본정보" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="용도코드" Grid.Row="0" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBox Text="{Binding UseCode}" Grid.Row="0" Grid.Column="1" Margin="4,2"/>
+                    <TextBlock Text="설치년도" Grid.Row="1" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBox Text="{Binding InstallYear}" Grid.Row="1" Grid.Column="1" Margin="4,2"/>
+                    <TextBlock Text="관재질" Grid.Row="2" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBox Text="{Binding Material}" Grid.Row="2" Grid.Column="1" Margin="4,2"/>
+                    <TextBlock Text="구경" Grid.Row="3" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBox Text="{Binding Diameter}" Grid.Row="3" Grid.Column="1" Margin="4,2"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- 박스관 -->
+            <GroupBox Header="박스관" Margin="0,0,0,8">
+                <StackPanel>
+                    <CheckBox Content="박스관" IsChecked="{Binding IsBoxPipe}" Margin="0,2"/>
+                    <Grid Margin="16,4,0,0" IsEnabled="{Binding IsBoxPipe}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="가로(mm)" Grid.Row="0" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding BoxWidth}" Grid.Row="0" Grid.Column="1" Margin="4,2"/>
+                        <TextBlock Text="세로(mm)" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding BoxHeight}" Grid.Row="1" Grid.Column="1" Margin="4,2"/>
+                        <TextBlock Text="통로수" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding LineCount}" Grid.Row="2" Grid.Column="1" Margin="4,2" Width="50" HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- 심도 -->
+            <GroupBox Header="심도" Margin="0,0,0,8">
+                <StackPanel>
+                    <RadioButton Content="자동측정" IsChecked="{Binding IsAutoDepth}" Margin="0,2"/>
+                    <RadioButton Content="수동입력" IsChecked="{Binding IsManualDepth}" Margin="0,2"/>
+                    <Grid Margin="16,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="시점심도" Grid.Row="0" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding BeginDepth}" Grid.Row="0" Grid.Column="1" Margin="4,2" IsEnabled="{Binding IsManualDepth}"/>
+                        <TextBlock Text="종점심도" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding EndDepth}" Grid.Row="1" Grid.Column="1" Margin="4,2" IsEnabled="{Binding IsManualDepth}"/>
+                    </Grid>
+                    <CheckBox Content="불탐" IsChecked="{Binding IsUndetected}" Margin="0,4"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- 지반고 + 계산결과 -->
+            <GroupBox Header="지반고 / 표고" Margin="0,0,0,8">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="시점지반고" Grid.Row="0" VerticalAlignment="Center" Margin="0,2"/>
+                        <TextBox Text="{Binding BeginGroundHeight}" Grid.Row="0" Grid.Column="1" Margin="4,2"/>
+                        <TextBlock Text="종점지반고" Grid.Row="1" VerticalAlignment="Center" Margin="0,2"/>
+                        <TextBox Text="{Binding EndGroundHeight}" Grid.Row="1" Grid.Column="1" Margin="4,2"/>
+                    </Grid>
+                    <Button Content="표고 미리보기" Command="{Binding CalcElevationCommand}"
+                            Width="100" HorizontalAlignment="Left" Margin="0,4"/>
+                    <TextBlock Text="{Binding ElevationInfo}" Margin="0,4"
+                               Foreground="Gray" FontSize="11"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- 라벨 -->
+            <GroupBox Header="라벨" Margin="0,0,0,8">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="지시선" IsChecked="{Binding UseLeader}" Margin="0,0,16,0"/>
+                    <RadioButton Content="관로평행"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- 버튼 -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8">
+                <Button Content="신규입력" Command="{Binding CreateCommand}" Width="80" Height="30" Margin="0,0,8,0"/>
+                <Button Content="수정" Command="{Binding ModifyCommand}" Width="80" Height="30"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
