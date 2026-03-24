@@ -39,7 +39,7 @@ namespace GntTools.UI.BlockBrowser
         {
             // 1. 엔티티에서 geometry 수집
             var geometries = new List<GeometryData>();
-            CollectGeometries(btr, tr, Matrix3d.Identity, geometries);
+            CollectGeometries(btr, tr, Matrix3d.Identity, geometries, new HashSet<ObjectId>());
 
             if (geometries.Count == 0)
                 return CreatePlaceholder();
@@ -112,10 +112,11 @@ namespace GntTools.UI.BlockBrowser
             return img;
         }
 
-        /// <summary>블록 내 엔티티 재귀 수집 (중첩 블록 포함)</summary>
+        /// <summary>블록 내 엔티티 재귀 수집 (중첩 블록 포함, 순환 참조 방지)</summary>
         private void CollectGeometries(BlockTableRecord btr, Transaction tr,
-            Matrix3d transform, List<GeometryData> result)
+            Matrix3d transform, List<GeometryData> result, HashSet<ObjectId> visited)
         {
+            if (!visited.Add(btr.ObjectId)) return; // 순환 참조 방지
             foreach (ObjectId entId in btr)
             {
                 try
@@ -170,7 +171,7 @@ namespace GntTools.UI.BlockBrowser
                         var nestedBtr = tr.GetObject(blkRef.BlockTableRecord, OpenMode.ForRead)
                             as BlockTableRecord;
                         if (nestedBtr != null)
-                            CollectGeometries(nestedBtr, tr, transform * blkRef.BlockTransform, result);
+                            CollectGeometries(nestedBtr, tr, transform * blkRef.BlockTransform, result, visited);
                     }
                 }
                 catch (Autodesk.AutoCAD.Runtime.Exception)
