@@ -16,5 +16,11 @@ namespace GntTools.UI.Commands
             int lastTab = (PaletteManager.PaletteSet?.Count ?? 1) - 1;
             PaletteManager.ActivateTab(lastTab);
         }
+
+        [CommandMethod("GNTBLOCKS")]
+        public void ShowBlockBrowser()
+        {
+            BlockBrowser.BlockBrowserPaletteManager.Toggle();
+        }
     }
 }
