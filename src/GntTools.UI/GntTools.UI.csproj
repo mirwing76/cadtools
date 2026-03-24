@@ -66,6 +66,9 @@
     <Compile Include="BlockBrowser\AciColorTable.cs" />
     <Compile Include="BlockBrowser\BlockThumbnailRenderer.cs" />
     <Compile Include="BlockBrowser\BlockBrowserViewModel.cs" />
+    <Compile Include="BlockBrowser\BlockBrowserPanel.xaml.cs">
+      <DependentUpon>BlockBrowserPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Commands\PaletteCommands.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
@@ -100,6 +103,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\KepcoPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="BlockBrowser\BlockBrowserPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
