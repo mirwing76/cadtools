@@ -64,6 +64,7 @@
     <Compile Include="PaletteManager.cs" />
     <Compile Include="BlockBrowser\BlockItem.cs" />
     <Compile Include="BlockBrowser\AciColorTable.cs" />
+    <Compile Include="BlockBrowser\BlockThumbnailRenderer.cs" />
     <Compile Include="Commands\PaletteCommands.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
