@@ -362,14 +362,34 @@ namespace GntTools.UI.BlockBrowser
             dc.DrawGeometry(null, pen, sg);
         }
 
+        /// <summary>AutoCAD %%특수문자 → 유니코드 변환</summary>
+        private static string ConvertAcadSpecialChars(string text)
+        {
+            if (string.IsNullOrEmpty(text) || !text.Contains("%%"))
+                return text;
+
+            return text
+                .Replace("%%C", "\u00D8")  // %%C → Ø (파이/지름)
+                .Replace("%%c", "\u00D8")
+                .Replace("%%D", "\u00B0")  // %%D → ° (도)
+                .Replace("%%d", "\u00B0")
+                .Replace("%%P", "\u00B1")  // %%P → ± (플마)
+                .Replace("%%p", "\u00B1")
+                .Replace("%%U", "")        // %%U → 밑줄 (표현 생략)
+                .Replace("%%u", "")
+                .Replace("%%O", "")        // %%O → 윗줄 (표현 생략)
+                .Replace("%%o", "")
+                .Replace("%%%%", "%");     // %%%% → % (이스케이프)
+        }
+
         private void DrawTextGeometry(DrawingContext dc, GeometryData g,
             double cx, double cy, double scale, double thumbSize)
         {
             var pos = ToThumb(g.Points[0], cx, cy, scale, thumbSize);
-            double fontSize = Math.Max(g.TextHeight * scale, 4); // 최소 4px
-            fontSize = Math.Min(fontSize, thumbSize * 0.3); // 최대 썸네일의 30%
+            double fontSize = Math.Max(g.TextHeight * scale, 4);
+            fontSize = Math.Min(fontSize, thumbSize * 0.3);
 
-            var ft = new FormattedText(g.TextContent,
+            var ft = new FormattedText(ConvertAcadSpecialChars(g.TextContent),
                 System.Globalization.CultureInfo.CurrentCulture,
                 System.Windows.FlowDirection.LeftToRight,
                 new Typeface(g.FontFamily ?? "Segoe UI"), fontSize,
