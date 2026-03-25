@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Windows.Controls;
 using Autodesk.AutoCAD.Windows;
 using GntTools.UI.Controls;
 using GntTools.UI.ViewModels;
@@ -12,6 +14,7 @@ namespace GntTools.UI
             new Guid("B7E3F1A2-4D5C-6E7F-8901-ABCDEF012345");
 
         private static PaletteSet _ps;
+        private static readonly List<UserControl> _panels = new List<UserControl>();
 
         public static WtlViewModel WtlVm { get; private set; }
         public static SwlViewModel SwlVm { get; private set; }
@@ -42,15 +45,25 @@ namespace GntTools.UI
             var kepcoPanel = new KepcoPanel { DataContext = KepcoVm };
             var settingsPanel = new SettingsPanel { DataContext = SettingsVm };
 
-            ThemeHelper.ApplyTheme(wtlPanel);
-            ThemeHelper.ApplyTheme(swlPanel);
-            ThemeHelper.ApplyTheme(kepcoPanel);
-            ThemeHelper.ApplyTheme(settingsPanel);
+            _panels.Add(wtlPanel);
+            _panels.Add(swlPanel);
+            _panels.Add(kepcoPanel);
+            _panels.Add(settingsPanel);
+
+            foreach (var p in _panels)
+                ThemeHelper.ApplyTheme(p);
 
             _ps.AddVisual("상수", wtlPanel);
             _ps.AddVisual("하수", swlPanel);
             _ps.AddVisual("전력통신", kepcoPanel);
             _ps.AddVisual("환경설정", settingsPanel);
+        }
+
+        /// <summary>모든 패널에 테마 재적용</summary>
+        public static void ReapplyTheme()
+        {
+            foreach (var p in _panels)
+                ThemeHelper.ApplyTheme(p);
         }
 
         /// <summary>팔레트 표시/토글</summary>

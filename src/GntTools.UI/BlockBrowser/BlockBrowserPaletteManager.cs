@@ -10,6 +10,7 @@ namespace GntTools.UI.BlockBrowser
 
         private static PaletteSet _ps;
         private static BlockBrowserViewModel _vm;
+        private static BlockBrowserPanel _panel;
 
         public static void Toggle()
         {
@@ -17,6 +18,13 @@ namespace GntTools.UI.BlockBrowser
             _ps.Visible = !_ps.Visible;
             if (_ps.Visible)
                 _vm.Refresh();
+        }
+
+        /// <summary>테마 재적용</summary>
+        public static void ReapplyTheme()
+        {
+            if (_panel != null)
+                ThemeHelper.ApplyTheme(_panel);
         }
 
         private static void Initialize()
@@ -30,9 +38,9 @@ namespace GntTools.UI.BlockBrowser
             _ps.DockEnabled = DockSides.Left | DockSides.Right;
 
             _vm = new BlockBrowserViewModel();
-            var panel = new BlockBrowserPanel { DataContext = _vm };
-            ThemeHelper.ApplyTheme(panel);
-            _ps.AddVisual("블록", panel);
+            _panel = new BlockBrowserPanel { DataContext = _vm };
+            ThemeHelper.ApplyTheme(_panel);
+            _ps.AddVisual("블록", _panel);
         }
     }
 }
