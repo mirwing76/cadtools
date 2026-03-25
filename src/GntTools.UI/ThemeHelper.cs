@@ -1,7 +1,6 @@
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Autodesk.AutoCAD.ApplicationServices;
+using AcApp = Autodesk.AutoCAD.ApplicationServices.Application;
 
 namespace GntTools.UI
 {
@@ -15,7 +14,7 @@ namespace GntTools.UI
             {
                 try
                 {
-                    var val = Application.GetSystemVariable("COLORTHEME");
+                    var val = AcApp.GetSystemVariable("COLORTHEME");
                     return val != null && val.ToString() == "0";
                 }
                 catch { return true; } // 기본값: 다크
