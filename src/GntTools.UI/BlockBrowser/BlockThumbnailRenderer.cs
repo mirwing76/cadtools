@@ -9,40 +9,40 @@ namespace GntTools.UI.BlockBrowser
 {
     public class BlockThumbnailRenderer
     {
-        private const double ThumbSize = 80.0;
         private const double Padding = 4.0;
-        private readonly Dictionary<ObjectId, DrawingImage> _cache
-            = new Dictionary<ObjectId, DrawingImage>();
+        private readonly Dictionary<string, DrawingImage> _cache
+            = new Dictionary<string, DrawingImage>();
 
         public void ClearCache() => _cache.Clear();
 
         /// <summary>블록의 썸네일 DrawingImage 생성 (캐시)</summary>
-        public DrawingImage Render(BlockTableRecord btr, Transaction tr)
+        public DrawingImage Render(BlockTableRecord btr, Transaction tr, double thumbSize = 56.0)
         {
-            if (_cache.TryGetValue(btr.ObjectId, out var cached))
+            string key = $"{btr.ObjectId}_{thumbSize}";
+            if (_cache.TryGetValue(key, out var cached))
                 return cached;
 
             DrawingImage result;
             try
             {
-                result = RenderInternal(btr, tr);
+                result = RenderInternal(btr, tr, thumbSize);
             }
             catch
             {
-                result = CreatePlaceholder();
+                result = CreatePlaceholder(thumbSize);
             }
-            _cache[btr.ObjectId] = result;
+            _cache[key] = result;
             return result;
         }
 
-        private DrawingImage RenderInternal(BlockTableRecord btr, Transaction tr)
+        private DrawingImage RenderInternal(BlockTableRecord btr, Transaction tr, double thumbSize)
         {
             // 1. 엔티티에서 geometry 수집
             var geometries = new List<GeometryData>();
             CollectGeometries(btr, tr, Matrix3d.Identity, geometries, new HashSet<ObjectId>());
 
             if (geometries.Count == 0)
-                return CreatePlaceholder();
+                return CreatePlaceholder(thumbSize);
 
             // 2. 바운딩박스 계산
             double minX = double.MaxValue, minY = double.MaxValue;
@@ -62,10 +62,10 @@ namespace GntTools.UI.BlockBrowser
 
             double w = maxX - minX;
             double h = maxY - minY;
-            if (w < 1e-6 && h < 1e-6) return CreatePlaceholder();
+            if (w < 1e-6 && h < 1e-6) return CreatePlaceholder(thumbSize);
 
             // 3. 스케일/센터 계산
-            double drawArea = ThumbSize - Padding * 2;
+            double drawArea = thumbSize - Padding * 2;
             double scale = Math.Min(drawArea / Math.Max(w, 1e-6), drawArea / Math.Max(h, 1e-6));
             double cx = (minX + maxX) / 2.0;
             double cy = (minY + maxY) / 2.0;
@@ -75,8 +75,8 @@ namespace GntTools.UI.BlockBrowser
             using (var dc = dv.RenderOpen())
             {
                 // 배경
-                dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(30, 30, 30)),
-                    null, new Rect(0, 0, ThumbSize, ThumbSize));
+                dc.DrawRectangle(new SolidColorBrush(SystemColors.ControlColor),
+                    null, new Rect(0, 0, thumbSize, thumbSize));
 
                 foreach (var g in geometries)
                 {
@@ -86,22 +86,22 @@ namespace GntTools.UI.BlockBrowser
                     switch (g.Type)
                     {
                         case GeomType.Line:
-                            dc.DrawLine(pen, ToThumb(g.Points[0], cx, cy, scale),
-                                             ToThumb(g.Points[1], cx, cy, scale));
+                            dc.DrawLine(pen, ToThumb(g.Points[0], cx, cy, scale, thumbSize),
+                                             ToThumb(g.Points[1], cx, cy, scale, thumbSize));
                             break;
                         case GeomType.Circle:
-                            var center = ToThumb(g.Points[0], cx, cy, scale);
+                            var center = ToThumb(g.Points[0], cx, cy, scale, thumbSize);
                             double r = g.Radius * scale;
                             dc.DrawEllipse(null, pen, center, r, r);
                             break;
                         case GeomType.Ellipse:
-                            var eCenter = ToThumb(g.Points[0], cx, cy, scale);
+                            var eCenter = ToThumb(g.Points[0], cx, cy, scale, thumbSize);
                             double majorR = g.Radius * scale;
                             double minorR = g.MinorRadius * scale;
                             dc.DrawEllipse(null, pen, eCenter, majorR, minorR);
                             break;
                         case GeomType.Arc:
-                            DrawArcGeometry(dc, pen, g, cx, cy, scale);
+                            DrawArcGeometry(dc, pen, g, cx, cy, scale, thumbSize);
                             break;
                     }
                 }
@@ -258,15 +258,15 @@ namespace GntTools.UI.BlockBrowser
             return AciColorTable.FromAcadColor(acadColor);
         }
 
-        private Point ToThumb(Point2 pt, double cx, double cy, double scale)
+        private Point ToThumb(Point2 pt, double cx, double cy, double scale, double thumbSize)
         {
-            double x = (pt.X - cx) * scale + ThumbSize / 2.0;
-            double y = -(pt.Y - cy) * scale + ThumbSize / 2.0;  // Y축 반전
+            double x = (pt.X - cx) * scale + thumbSize / 2.0;
+            double y = -(pt.Y - cy) * scale + thumbSize / 2.0;  // Y축 반전
             return new Point(x, y);
         }
 
         private void DrawArcGeometry(DrawingContext dc, Pen pen,
-            GeometryData g, double cx, double cy, double scale)
+            GeometryData g, double cx, double cy, double scale, double thumbSize = 56.0)
         {
             double r = g.Radius * scale;
             double startAngle = g.StartAngle;
@@ -279,8 +279,8 @@ namespace GntTools.UI.BlockBrowser
             double ex = center.X + g.Radius * Math.Cos(endAngle);
             double ey = center.Y + g.Radius * Math.Sin(endAngle);
 
-            var startPt = ToThumb(new Point2(sx, sy), cx, cy, scale);
-            var endPt = ToThumb(new Point2(ex, ey), cx, cy, scale);
+            var startPt = ToThumb(new Point2(sx, sy), cx, cy, scale, thumbSize);
+            var endPt = ToThumb(new Point2(ex, ey), cx, cy, scale, thumbSize);
 
             double sweep = endAngle - startAngle;
             if (sweep < 0) sweep += 2 * Math.PI;
@@ -298,20 +298,20 @@ namespace GntTools.UI.BlockBrowser
             dc.DrawGeometry(null, pen, sg);
         }
 
-        private DrawingImage CreatePlaceholder()
+        private DrawingImage CreatePlaceholder(double thumbSize)
         {
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(30, 30, 30)),
-                    null, new Rect(0, 0, ThumbSize, ThumbSize));
+                dc.DrawRectangle(new SolidColorBrush(SystemColors.ControlColor),
+                    null, new Rect(0, 0, thumbSize, thumbSize));
                 var ft = new FormattedText("No Preview",
                     System.Globalization.CultureInfo.CurrentCulture,
                     System.Windows.FlowDirection.LeftToRight,
-                    new Typeface("Segoe UI"), 10, Brushes.Gray,
+                    new Typeface("Segoe UI"), 10, SystemColors.GrayTextBrush,
                     1.0); // pixelsPerDip — 논리 단위 렌더링이므로 1.0 사용
                 dc.DrawText(ft, new Point(
-                    (ThumbSize - ft.Width) / 2, (ThumbSize - ft.Height) / 2));
+                    (thumbSize - ft.Width) / 2, (thumbSize - ft.Height) / 2));
             }
             var img = new DrawingImage(dv.Drawing);
             img.Freeze();
