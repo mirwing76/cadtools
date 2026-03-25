@@ -1,14 +1,15 @@
 <UserControl x:Class="GntTools.UI.Controls.WtlPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Padding="8">
+             Padding="0">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
+
             <!-- 기본정보 -->
-            <GroupBox Header="기본정보" Margin="0,0,0,8">
+            <Expander Style="{StaticResource PropertyExpander}" Header="기본정보" IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -16,47 +17,83 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="설치년도" Grid.Row="0" VerticalAlignment="Center" Margin="0,2"/>
-                    <TextBox Text="{Binding InstallYear, UpdateSourceTrigger=PropertyChanged}"
-                             Grid.Row="0" Grid.Column="1" Margin="4,2"/>
-                    <TextBlock Text="관재질" Grid.Row="1" VerticalAlignment="Center" Margin="0,2"/>
-                    <TextBox Text="{Binding Material, UpdateSourceTrigger=PropertyChanged}"
-                             Grid.Row="1" Grid.Column="1" Margin="4,2"/>
-                    <TextBlock Text="구경" Grid.Row="2" VerticalAlignment="Center" Margin="0,2"/>
-                    <TextBox Text="{Binding Diameter, UpdateSourceTrigger=PropertyChanged}"
-                             Grid.Row="2" Grid.Column="1" Margin="4,2"/>
+
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="설치년도" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding InstallYear, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PropertyTextBox}"/>
+
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="관재질" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Text="{Binding Material, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PropertyTextBox}"/>
+
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="구경" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             Text="{Binding Diameter, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PropertyTextBox}"/>
                 </Grid>
-            </GroupBox>
+            </Expander>
 
             <!-- 심도 -->
-            <GroupBox Header="심도" Margin="0,0,0,8">
-                <StackPanel>
-                    <RadioButton Content="자동측정 (정점별 텍스트)"
-                                 IsChecked="{Binding IsAutoDepth}" Margin="0,2"/>
-                    <RadioButton Content="수동입력"
-                                 IsChecked="{Binding IsManualDepth}" Margin="0,2"/>
-                    <Grid Margin="16,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="시점심도" Grid.Row="0" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding BeginDepth}" Grid.Row="0" Grid.Column="1"
-                                 Margin="4,2" IsEnabled="{Binding IsManualDepth}"/>
-                        <TextBlock Text="종점심도" Grid.Row="1" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding EndDepth}" Grid.Row="1" Grid.Column="1"
-                                 Margin="4,2" IsEnabled="{Binding IsManualDepth}"/>
-                    </Grid>
-                    <CheckBox Content="불탐" IsChecked="{Binding IsUndetected}" Margin="0,4"/>
-                </StackPanel>
-            </GroupBox>
+            <Expander Style="{StaticResource PropertyExpander}" Header="심도" IsExpanded="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 자동측정 -->
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <RadioButton Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                 Content="자동측정 (정점별 텍스트)"
+                                 IsChecked="{Binding IsAutoDepth}"
+                                 Margin="4,2"/>
+
+                    <!-- 수동입력 -->
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                 Content="수동입력"
+                                 IsChecked="{Binding IsManualDepth}"
+                                 Margin="4,2"/>
+
+                    <!-- 시점심도 -->
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="시점심도" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             Text="{Binding BeginDepth, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding IsManualDepth}"
+                             Style="{StaticResource PropertyTextBox}"/>
+
+                    <!-- 종점심도 -->
+                    <Border Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="종점심도" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="3" Grid.Column="1"
+                             Text="{Binding EndDepth, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding IsManualDepth}"
+                             Style="{StaticResource PropertyTextBox}"/>
+
+                    <!-- 불탐 -->
+                    <Border Grid.Row="4" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                              Content="불탐"
+                              IsChecked="{Binding IsUndetected}"
+                              Margin="4,2"/>
+                </Grid>
+            </Expander>
 
             <!-- 지반고 -->
-            <GroupBox Header="지반고" Margin="0,0,0,8">
+            <Expander Style="{StaticResource PropertyExpander}" Header="지반고" IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="80"/>
@@ -66,28 +103,59 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="시점지반고" Grid.Row="0" VerticalAlignment="Center" Margin="0,2"/>
-                    <TextBox Text="{Binding BeginGroundHeight}" Grid.Row="0" Grid.Column="1" Margin="4,2"/>
-                    <TextBlock Text="종점지반고" Grid.Row="1" VerticalAlignment="Center" Margin="0,2"/>
-                    <TextBox Text="{Binding EndGroundHeight}" Grid.Row="1" Grid.Column="1" Margin="4,2"/>
+
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="시점지반고" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding BeginGroundHeight, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PropertyTextBox}"/>
+
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="종점지반고" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Text="{Binding EndGroundHeight, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PropertyTextBox}"/>
                 </Grid>
-            </GroupBox>
+            </Expander>
 
             <!-- 라벨 -->
-            <GroupBox Header="라벨" Margin="0,0,0,8">
-                <StackPanel Orientation="Horizontal">
-                    <RadioButton Content="지시선" IsChecked="{Binding UseLeader}" Margin="0,0,16,0"/>
-                    <RadioButton Content="관로평행"/>
-                </StackPanel>
-            </GroupBox>
+            <Expander Style="{StaticResource PropertyExpander}" Header="라벨" IsExpanded="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <!-- 버튼 -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8">
-                <Button Content="신규입력" Command="{Binding CreateCommand}"
-                        Width="80" Height="30" Margin="0,0,8,0"/>
-                <Button Content="수정" Command="{Binding ModifyCommand}"
-                        Width="80" Height="30"/>
-            </StackPanel>
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <RadioButton Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                 Content="지시선"
+                                 IsChecked="{Binding UseLeader}"
+                                 Margin="4,2"/>
+
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PropertyRow}"/>
+                    <RadioButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                 Content="관로평행"
+                                 IsChecked="{Binding UseParallel}"
+                                 Margin="4,2"/>
+                </Grid>
+            </Expander>
+
+            <!-- 실행 -->
+            <Expander Style="{StaticResource PropertyExpander}" Header="실행" IsExpanded="True">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,4">
+                    <Button Content="신규입력" Command="{Binding CreateCommand}"
+                            Style="{StaticResource PropertyButton}"
+                            Width="80" Margin="0,0,6,0"/>
+                    <Button Content="수정" Command="{Binding ModifyCommand}"
+                            Style="{StaticResource PropertyButton}"
+                            Width="80"/>
+                </StackPanel>
+            </Expander>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
