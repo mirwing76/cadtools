@@ -30,7 +30,9 @@ namespace GntTools.UI.BlockBrowser
             _ps.DockEnabled = DockSides.Left | DockSides.Right;
 
             _vm = new BlockBrowserViewModel();
-            _ps.AddVisual("블록", new BlockBrowserPanel { DataContext = _vm });
+            var panel = new BlockBrowserPanel { DataContext = _vm };
+            ThemeHelper.ApplyTheme(panel);
+            _ps.AddVisual("블록", panel);
         }
     }
 }

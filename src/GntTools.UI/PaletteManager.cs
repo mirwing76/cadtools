@@ -37,10 +37,20 @@ namespace GntTools.UI
             KepcoVm = new KepcoViewModel();
             SettingsVm = new SettingsViewModel();
 
-            _ps.AddVisual("상수", new WtlPanel { DataContext = WtlVm });
-            _ps.AddVisual("하수", new SwlPanel { DataContext = SwlVm });
-            _ps.AddVisual("전력통신", new KepcoPanel { DataContext = KepcoVm });
-            _ps.AddVisual("환경설정", new SettingsPanel { DataContext = SettingsVm });
+            var wtlPanel = new WtlPanel { DataContext = WtlVm };
+            var swlPanel = new SwlPanel { DataContext = SwlVm };
+            var kepcoPanel = new KepcoPanel { DataContext = KepcoVm };
+            var settingsPanel = new SettingsPanel { DataContext = SettingsVm };
+
+            ThemeHelper.ApplyTheme(wtlPanel);
+            ThemeHelper.ApplyTheme(swlPanel);
+            ThemeHelper.ApplyTheme(kepcoPanel);
+            ThemeHelper.ApplyTheme(settingsPanel);
+
+            _ps.AddVisual("상수", wtlPanel);
+            _ps.AddVisual("하수", swlPanel);
+            _ps.AddVisual("전력통신", kepcoPanel);
+            _ps.AddVisual("환경설정", settingsPanel);
         }
 
         /// <summary>팔레트 표시/토글</summary>

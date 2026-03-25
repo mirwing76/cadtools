@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugin.cs" />
+    <Compile Include="ThemeHelper.cs" />
     <Compile Include="PaletteManager.cs" />
     <Compile Include="BlockBrowser\BlockItem.cs" />
     <Compile Include="BlockBrowser\AciColorTable.cs" />

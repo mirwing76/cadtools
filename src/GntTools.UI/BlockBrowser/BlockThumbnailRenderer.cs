@@ -75,7 +75,7 @@ namespace GntTools.UI.BlockBrowser
             using (var dc = dv.RenderOpen())
             {
                 // 배경
-                dc.DrawRectangle(new SolidColorBrush(SystemColors.ControlColor),
+                dc.DrawRectangle(new SolidColorBrush(ThemeHelper.ThumbnailBackgroundColor),
                     null, new Rect(0, 0, thumbSize, thumbSize));
 
                 foreach (var g in geometries)
@@ -303,12 +303,12 @@ namespace GntTools.UI.BlockBrowser
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                dc.DrawRectangle(new SolidColorBrush(SystemColors.ControlColor),
+                dc.DrawRectangle(new SolidColorBrush(ThemeHelper.ThumbnailBackgroundColor),
                     null, new Rect(0, 0, thumbSize, thumbSize));
                 var ft = new FormattedText("No Preview",
                     System.Globalization.CultureInfo.CurrentCulture,
                     System.Windows.FlowDirection.LeftToRight,
-                    new Typeface("Segoe UI"), 10, SystemColors.GrayTextBrush,
+                    new Typeface("Segoe UI"), 10, ThemeHelper.ThumbnailTextBrush,
                     1.0); // pixelsPerDip — 논리 단위 렌더링이므로 1.0 사용
                 dc.DrawText(ft, new Point(
                     (thumbSize - ft.Width) / 2, (thumbSize - ft.Height) / 2));
