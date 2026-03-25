@@ -71,6 +71,7 @@
       <DependentUpon>BlockBrowserPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="BlockBrowser\BlockBrowserPaletteManager.cs" />
+    <Compile Include="BlockBrowser\BlockDataStore.cs" />
     <Compile Include="Commands\PaletteCommands.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
