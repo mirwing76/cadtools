@@ -20,17 +20,18 @@
                                             BorderBrush="{DynamicResource GridBorder}"
                                             BorderThickness="0,0,0,1" Padding="4,3">
                                         <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{TemplateBinding Content}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource TextFg}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
                                             <Path x:Name="Arrow" Data="M 0 0 L 6 4 L 0 8 Z"
                                                   Fill="{DynamicResource TextFg}"
-                                                  VerticalAlignment="Center" Margin="0,0,6,0"
+                                                  VerticalAlignment="Center"
                                                   RenderTransformOrigin="0.5,0.5">
                                                 <Path.RenderTransform>
                                                     <RotateTransform Angle="0"/>
                                                 </Path.RenderTransform>
                                             </Path>
-                                            <TextBlock Text="{TemplateBinding Content}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource TextFg}"/>
                                         </StackPanel>
                                     </Border>
                                     <ControlTemplate.Triggers>
