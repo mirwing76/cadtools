@@ -118,6 +118,32 @@
             </StackPanel>
         </Border>
 
+        <!-- Insert Options -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SectionHeaderBg}"
+                BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,1,0,0"
+                Padding="4,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Scale:" Foreground="{DynamicResource TextFg}"
+                           VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
+                <TextBox Grid.Column="1" Text="{Binding InsertScale, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource PropertyTextBox}" FontSize="11"/>
+                <TextBlock Grid.Column="2" Text="Rot:" Foreground="{DynamicResource TextFg}"
+                           VerticalAlignment="Center" Margin="8,0,4,0" FontSize="11"/>
+                <TextBox Grid.Column="3" Text="{Binding InsertRotation, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource PropertyTextBox}" FontSize="11"/>
+                <CheckBox Grid.Column="4" Content="Explode" IsChecked="{Binding ExplodeOnInsert}"
+                          Foreground="{DynamicResource TextFg}" VerticalAlignment="Center"
+                          Margin="8,0,0,0" FontSize="11"/>
+            </Grid>
+        </Border>
+
         <!-- 상태바 -->
         <Border DockPanel.Dock="Bottom" Background="{DynamicResource SectionHeaderBg}"
                 BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,1,0,0"

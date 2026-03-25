@@ -80,6 +80,28 @@ namespace GntTools.UI.BlockBrowser
         public double TileWidth => TileSizes[_sizeIndex];
         public string SizeLabel => SizeLabels[_sizeIndex];
 
+        // Insert options
+        private double _insertScale = 1.0;
+        public double InsertScale
+        {
+            get => _insertScale;
+            set => SetProperty(ref _insertScale, value);
+        }
+
+        private double _insertRotation;
+        public double InsertRotation
+        {
+            get => _insertRotation;
+            set => SetProperty(ref _insertRotation, value);
+        }
+
+        private bool _explodeOnInsert;
+        public bool ExplodeOnInsert
+        {
+            get => _explodeOnInsert;
+            set => SetProperty(ref _explodeOnInsert, value);
+        }
+
         // Commands
         public ICommand RefreshCommand { get; }
         public ICommand ToggleViewCommand { get; }
@@ -229,7 +251,7 @@ namespace GntTools.UI.BlockBrowser
             Refresh();
         }
 
-        /// <summary>블록 삽입</summary>
+        /// <summary>블록 삽입 (Scale, Rotation, Explode 옵션 적용)</summary>
         public void InsertBlock(BlockItem item)
         {
             var doc = Application.DocumentManager.MdiActiveDocument;
@@ -238,8 +260,31 @@ namespace GntTools.UI.BlockBrowser
             using (doc.LockDocument())
             {
                 var ed = doc.Editor;
-                var pr = ed.GetPoint("\nSpecify insertion point: ");
-                if (pr.Status != PromptStatus.OK) return;
+
+                // 1. Insertion point
+                var ptResult = ed.GetPoint("\nSpecify insertion point: ");
+                if (ptResult.Status != PromptStatus.OK) return;
+
+                // 2. Rotation — 0이 아니고 입력 안 했으면 마우스로 각도 지정
+                double rotation = InsertRotation;
+                if (rotation == 0)
+                {
+                    var angOpt = new PromptAngleOptions("\nSpecify rotation angle <0>: ");
+                    angOpt.DefaultValue = 0;
+                    angOpt.UseDefaultValue = true;
+                    angOpt.BasePoint = ptResult.Value;
+                    angOpt.UseBasePoint = true;
+                    var angResult = ed.GetAngle(angOpt);
+                    if (angResult.Status == PromptStatus.OK)
+                        rotation = angResult.Value;
+                }
+                else
+                {
+                    rotation = InsertRotation * Math.PI / 180.0; // degree to radian
+                }
+
+                double scale = InsertScale;
+                if (scale <= 0) scale = 1.0;
 
                 var db = doc.Database;
                 using (var tr = db.TransactionManager.StartTransaction())
@@ -248,9 +293,29 @@ namespace GntTools.UI.BlockBrowser
                     var ms = (BlockTableRecord)tr.GetObject(
                         bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
 
-                    var blkRef = new BlockReference(pr.Value, item.BlockId);
+                    var blkRef = new BlockReference(ptResult.Value, item.BlockId);
+                    blkRef.ScaleFactors = new Autodesk.AutoCAD.Geometry.Scale3d(scale, scale, scale);
+                    blkRef.Rotation = rotation;
+
                     ms.AppendEntity(blkRef);
                     tr.AddNewlyCreatedDBObject(blkRef, true);
+
+                    // Explode
+                    if (ExplodeOnInsert)
+                    {
+                        var exploded = new DBObjectCollection();
+                        blkRef.Explode(exploded);
+                        foreach (DBObject obj in exploded)
+                        {
+                            var ent = obj as Entity;
+                            if (ent != null)
+                            {
+                                ms.AppendEntity(ent);
+                                tr.AddNewlyCreatedDBObject(ent, true);
+                            }
+                        }
+                        blkRef.Erase();
+                    }
 
                     tr.Commit();
                 }

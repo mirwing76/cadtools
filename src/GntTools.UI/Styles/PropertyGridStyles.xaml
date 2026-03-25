@@ -12,7 +12,9 @@
                 <ControlTemplate TargetType="Expander">
                     <DockPanel>
                         <!-- 헤더: 삼각형 + 섹션 이름 -->
-                        <ToggleButton DockPanel.Dock="Top" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                        <ToggleButton DockPanel.Dock="Top"
+                                      Content="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
+                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
                                       Cursor="Hand">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
