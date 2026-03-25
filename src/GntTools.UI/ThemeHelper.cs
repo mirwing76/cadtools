@@ -52,6 +52,18 @@ namespace GntTools.UI
             control.Resources[SystemColors.GrayTextBrushKey] = grayText;
             control.Resources[SystemColors.ActiveBorderBrushKey] = border;
             control.Resources[SystemColors.ControlBrushKey] = controlBg;
+
+            // TextBox: 밝은 배경 + 검은 글씨 유지 (Foreground 상속 방지)
+            var textBoxStyle = new Style(typeof(TextBox));
+            textBoxStyle.Setters.Add(new Setter(TextBox.ForegroundProperty, Brushes.Black));
+            textBoxStyle.Setters.Add(new Setter(TextBox.BackgroundProperty, Brushes.White));
+            control.Resources[typeof(TextBox)] = textBoxStyle;
+
+            // ComboBox: 동일하게 검은 글씨
+            var comboStyle = new Style(typeof(ComboBox));
+            comboStyle.Setters.Add(new Setter(ComboBox.ForegroundProperty, Brushes.Black));
+            comboStyle.Setters.Add(new Setter(ComboBox.BackgroundProperty, Brushes.White));
+            control.Resources[typeof(ComboBox)] = comboStyle;
         }
 
         /// <summary>썸네일 배경색 반환</summary>
