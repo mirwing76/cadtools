@@ -1,4 +1,6 @@
 autocad-map-odt-workspace/
+downloads/
+old_make/
 
 # Visual Studio / MSBuild
 bin/
