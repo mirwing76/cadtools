@@ -9,6 +9,7 @@ using Autodesk.Gis.Map.Constants;
 using Autodesk.Gis.Map.Project;
 using MapDataType = Autodesk.Gis.Map.Constants.DataType;
 using MapTable = Autodesk.Gis.Map.ObjectData.Table;
+using MapOpenMode = Autodesk.Gis.Map.Constants.OpenMode;
 using Autodesk.Gis.Map.Utilities;
 
 namespace GntTools.Core.Odt
@@ -147,7 +148,7 @@ namespace GntTools.Core.Odt
                 // 체크리스트 #1: Records는 반드시 using 블록
                 using (Records recs = table.GetObjectTableRecords(
                     0, entityId,
-                    Autodesk.Gis.Map.Constants.OpenMode.OpenForWrite, true))
+                    MapOpenMode.OpenForWrite, true))
                 {
                     if (recs.Count == 0) return false;
 
@@ -197,7 +198,7 @@ namespace GntTools.Core.Odt
                 // 체크리스트 #9: 읽기는 OpenForRead
                 using (Records recs = table.GetObjectTableRecords(
                     0, entityId,
-                    Autodesk.Gis.Map.Constants.OpenMode.OpenForRead, true))
+                    MapOpenMode.OpenForRead, true))
                 {
                     if (recs.Count == 0) return null;
 
@@ -248,7 +249,7 @@ namespace GntTools.Core.Odt
 
                 using (Records recs = table.GetObjectTableRecords(
                     0, entityId,
-                    Autodesk.Gis.Map.Constants.OpenMode.OpenForRead, true))
+                    MapOpenMode.OpenForRead, true))
                 {
                     return recs.Count > 0;
                 }
@@ -272,7 +273,7 @@ namespace GntTools.Core.Odt
                 // 체크리스트 #9: 삭제는 OpenForWrite
                 using (Records recs = table.GetObjectTableRecords(
                     0, entityId,
-                    Autodesk.Gis.Map.Constants.OpenMode.OpenForWrite, true))
+                    MapOpenMode.OpenForWrite, true))
                 {
                     if (recs.Count == 0) return false;
 
