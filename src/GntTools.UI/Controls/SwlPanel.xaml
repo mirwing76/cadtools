@@ -95,7 +95,7 @@
                     <Button Content="표고 미리보기" Command="{Binding CalcElevationCommand}"
                             Width="100" HorizontalAlignment="Left" Margin="0,4"/>
                     <TextBlock Text="{Binding ElevationInfo}" Margin="0,4"
-                               Foreground="Gray" FontSize="11"/>
+                               Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" FontSize="11"/>
                 </StackPanel>
             </GroupBox>
 
