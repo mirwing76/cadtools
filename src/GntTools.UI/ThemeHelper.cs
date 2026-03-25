@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -23,86 +24,64 @@ namespace GntTools.UI
         }
 
         // ─── 다크 테마 (AutoCAD Properties 팔레트 기준) ───
-        private static readonly Color DarkBg        = Color.FromRgb(59, 68, 83);
-        private static readonly Color DarkBgLight   = Color.FromRgb(69, 78, 93);
-        private static readonly Color DarkText      = Color.FromRgb(220, 220, 220);
-        private static readonly Color DarkGrayText  = Color.FromRgb(160, 160, 160);
-        private static readonly Color DarkBorder    = Color.FromRgb(80, 90, 105);
-        private static readonly Color DarkInputBg   = Color.FromRgb(50, 58, 72);
+        private static readonly Color DarkBg          = Color.FromRgb(59, 68, 83);
+        private static readonly Color DarkHeaderBg    = Color.FromRgb(69, 78, 93);
+        private static readonly Color DarkText        = Color.FromRgb(220, 220, 220);
+        private static readonly Color DarkValueText   = Color.FromRgb(200, 200, 200);
+        private static readonly Color DarkGrayText    = Color.FromRgb(160, 160, 160);
+        private static readonly Color DarkBorder      = Color.FromRgb(80, 90, 105);
+        private static readonly Color DarkRowHover    = Color.FromRgb(70, 80, 100);
+        private static readonly Color DarkSelectionBg = Color.FromRgb(51, 102, 204);
+        private static readonly Color DarkSelectionBd = Color.FromRgb(70, 130, 230);
 
         // ─── 라이트 테마 ───
-        private static readonly Color LightBg       = Color.FromRgb(222, 222, 222);
-        private static readonly Color LightBgLight  = Color.FromRgb(240, 240, 240);
-        private static readonly Color LightText     = Color.FromRgb(0, 0, 0);
-        private static readonly Color LightGrayText = Color.FromRgb(109, 109, 109);
-        private static readonly Color LightBorder   = Color.FromRgb(170, 170, 170);
-        private static readonly Color LightInputBg  = Color.FromRgb(255, 255, 255);
+        private static readonly Color LightBg          = Color.FromRgb(240, 240, 240);
+        private static readonly Color LightHeaderBg    = Color.FromRgb(222, 222, 222);
+        private static readonly Color LightText        = Color.FromRgb(0, 0, 0);
+        private static readonly Color LightValueText   = Color.FromRgb(30, 30, 30);
+        private static readonly Color LightGrayText    = Color.FromRgb(109, 109, 109);
+        private static readonly Color LightBorder      = Color.FromRgb(190, 190, 190);
+        private static readonly Color LightRowHover    = Color.FromRgb(210, 220, 240);
+        private static readonly Color LightSelectionBg = Color.FromRgb(51, 102, 204);
+        private static readonly Color LightSelectionBd = Color.FromRgb(70, 130, 230);
 
-        /// <summary>UserControl에 AutoCAD 테마 색상 적용</summary>
+        /// <summary>UserControl에 AutoCAD 테마 색상 적용 (PropertyGrid 스타일 포함)</summary>
         public static void ApplyTheme(UserControl control)
         {
             bool dark = IsDarkTheme;
 
-            var fg       = Freeze(dark ? DarkText     : LightText);
-            var bg       = Freeze(dark ? DarkBg       : LightBg);
-            var grayText = Freeze(dark ? DarkGrayText : LightGrayText);
-            var border   = Freeze(dark ? DarkBorder   : LightBorder);
-            var controlBg= Freeze(dark ? DarkBgLight  : LightBgLight);
-            var inputBg  = Freeze(dark ? DarkInputBg  : LightInputBg);
-            var inputFg  = Freeze(dark ? DarkText     : LightText);
+            // PropertyGridStyles.xaml 로드
+            try
+            {
+                var styleDict = new ResourceDictionary
+                {
+                    Source = new Uri("/GntTools.UI;component/Styles/PropertyGridStyles.xaml", UriKind.Relative)
+                };
+                control.Resources.MergedDictionaries.Add(styleDict);
+            }
+            catch { /* 스타일 파일 없어도 동작 */ }
 
-            control.Foreground = fg;
-            control.Background = new SolidColorBrush(dark ? DarkBg : LightBg);
+            // 테마 색상 DynamicResource 키 등록
+            control.Resources["PanelBg"]        = Freeze(dark ? DarkBg          : LightBg);
+            control.Resources["SectionHeaderBg"]= Freeze(dark ? DarkHeaderBg    : LightHeaderBg);
+            control.Resources["TextFg"]         = Freeze(dark ? DarkText        : LightText);
+            control.Resources["ValueFg"]        = Freeze(dark ? DarkValueText   : LightValueText);
+            control.Resources["GrayTextFg"]     = Freeze(dark ? DarkGrayText    : LightGrayText);
+            control.Resources["GridBorder"]     = Freeze(dark ? DarkBorder      : LightBorder);
+            control.Resources["RowHoverBg"]     = Freeze(dark ? DarkRowHover    : LightRowHover);
+            control.Resources["SelectionBg"]    = Freeze(dark ? DarkSelectionBg : LightSelectionBg);
+            control.Resources["SelectionBorder"]= Freeze(dark ? DarkSelectionBd : LightSelectionBd);
 
-            // SystemColors 오버라이드
-            control.Resources[SystemColors.ControlTextBrushKey] = fg;
-            control.Resources[SystemColors.WindowTextBrushKey] = fg;
-            control.Resources[SystemColors.GrayTextBrushKey] = grayText;
-            control.Resources[SystemColors.ActiveBorderBrushKey] = border;
-            control.Resources[SystemColors.ControlBrushKey] = controlBg;
+            control.Foreground = Freeze(dark ? DarkText : LightText);
+            control.Background = Freeze(dark ? DarkBg   : LightBg);
 
-            // TextBox: 테마에 맞는 배경 + 글씨
-            var textBoxStyle = new Style(typeof(TextBox));
-            textBoxStyle.Setters.Add(new Setter(TextBox.ForegroundProperty, inputFg));
-            textBoxStyle.Setters.Add(new Setter(TextBox.BackgroundProperty, inputBg));
-            textBoxStyle.Setters.Add(new Setter(TextBox.BorderBrushProperty, border));
-            textBoxStyle.Setters.Add(new Setter(TextBox.CaretBrushProperty, inputFg));
-            control.Resources[typeof(TextBox)] = textBoxStyle;
-
-            // ComboBox
-            var comboStyle = new Style(typeof(ComboBox));
-            comboStyle.Setters.Add(new Setter(ComboBox.ForegroundProperty, inputFg));
-            comboStyle.Setters.Add(new Setter(ComboBox.BackgroundProperty, inputBg));
-            comboStyle.Setters.Add(new Setter(ComboBox.BorderBrushProperty, border));
-            control.Resources[typeof(ComboBox)] = comboStyle;
-
-            // Button
-            var btnStyle = new Style(typeof(Button));
-            btnStyle.Setters.Add(new Setter(Button.ForegroundProperty, fg));
-            btnStyle.Setters.Add(new Setter(Button.BackgroundProperty, controlBg));
-            btnStyle.Setters.Add(new Setter(Button.BorderBrushProperty, border));
-            control.Resources[typeof(Button)] = btnStyle;
-
-            // ToggleButton
-            var toggleStyle = new Style(typeof(System.Windows.Controls.Primitives.ToggleButton));
-            toggleStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.ToggleButton.ForegroundProperty, fg));
-            toggleStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.ToggleButton.BackgroundProperty, controlBg));
-            toggleStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.ToggleButton.BorderBrushProperty, border));
-            control.Resources[typeof(System.Windows.Controls.Primitives.ToggleButton)] = toggleStyle;
-
-            // GroupBox
-            var groupStyle = new Style(typeof(GroupBox));
-            groupStyle.Setters.Add(new Setter(GroupBox.ForegroundProperty, fg));
-            groupStyle.Setters.Add(new Setter(GroupBox.BorderBrushProperty, border));
-            control.Resources[typeof(GroupBox)] = groupStyle;
-
-            // CheckBox, RadioButton
+            // 기본 컨트롤 스타일
             var checkStyle = new Style(typeof(CheckBox));
-            checkStyle.Setters.Add(new Setter(CheckBox.ForegroundProperty, fg));
+            checkStyle.Setters.Add(new Setter(CheckBox.ForegroundProperty, Freeze(dark ? DarkText : LightText)));
             control.Resources[typeof(CheckBox)] = checkStyle;
 
             var radioStyle = new Style(typeof(RadioButton));
-            radioStyle.Setters.Add(new Setter(RadioButton.ForegroundProperty, fg));
+            radioStyle.Setters.Add(new Setter(RadioButton.ForegroundProperty, Freeze(dark ? DarkText : LightText)));
             control.Resources[typeof(RadioButton)] = radioStyle;
         }
 
