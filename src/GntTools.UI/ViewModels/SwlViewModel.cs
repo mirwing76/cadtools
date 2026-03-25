@@ -61,15 +61,47 @@ namespace GntTools.UI.ViewModels
 
         public SwlViewModel()
         {
-            var s = AppSettings.Instance;
-            InstallYear = s.Swl.Defaults.Year;
-            Material = s.Swl.Defaults.Material;
-            Diameter = s.Swl.Defaults.Diameter;
-            UseCode = s.Swl.Defaults.UseCode;
+            var d = AppSettings.Instance.Swl.Defaults;
+            InstallYear = d.Year;
+            Material = d.Material;
+            Diameter = d.Diameter;
+            UseCode = d.UseCode;
+            IsAutoDepth = d.IsAutoDepth;
+            IsManualDepth = !d.IsAutoDepth;
+            BeginDepth = d.BeginDepth;
+            EndDepth = d.EndDepth;
+            IsUndetected = d.IsUndetected;
+            BeginGroundHeight = d.BeginGroundHeight;
+            EndGroundHeight = d.EndGroundHeight;
+            UseLeader = d.UseLeader;
+            IsBoxPipe = d.IsBoxPipe;
+            BoxWidth = d.BoxWidth;
+            BoxHeight = d.BoxHeight;
+            LineCount = d.LineCount;
 
             CreateCommand = new RelayCommand(ExecuteCreate);
             ModifyCommand = new RelayCommand(ExecuteModify);
             CalcElevationCommand = new RelayCommand(CalcPreview);
+        }
+
+        public void SaveState()
+        {
+            var d = AppSettings.Instance.Swl.Defaults;
+            d.Year = InstallYear;
+            d.Material = Material;
+            d.Diameter = Diameter;
+            d.UseCode = UseCode;
+            d.IsAutoDepth = IsAutoDepth;
+            d.BeginDepth = BeginDepth;
+            d.EndDepth = EndDepth;
+            d.IsUndetected = IsUndetected;
+            d.BeginGroundHeight = BeginGroundHeight;
+            d.EndGroundHeight = EndGroundHeight;
+            d.UseLeader = UseLeader;
+            d.IsBoxPipe = IsBoxPipe;
+            d.BoxWidth = BoxWidth;
+            d.BoxHeight = BoxHeight;
+            d.LineCount = LineCount;
         }
 
         /// <summary>표고 미리보기 계산</summary>

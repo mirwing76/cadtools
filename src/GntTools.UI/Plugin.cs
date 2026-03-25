@@ -22,6 +22,11 @@ namespace GntTools.UI
         public void Terminate()
         {
             AcApp.SystemVariableChanged -= OnSystemVariableChanged;
+
+            // Save palette state before exit
+            PaletteManager.WtlVm?.SaveState();
+            PaletteManager.SwlVm?.SaveState();
+            PaletteManager.KepcoVm?.SaveState();
             Core.Settings.AppSettings.Instance.Save();
         }
 

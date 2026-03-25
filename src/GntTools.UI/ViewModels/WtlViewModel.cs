@@ -97,14 +97,37 @@ namespace GntTools.UI.ViewModels
 
         public WtlViewModel()
         {
-            // 기본값 로드
-            var settings = AppSettings.Instance;
-            InstallYear = settings.Wtl.Defaults.Year;
-            Material = settings.Wtl.Defaults.Material;
-            Diameter = settings.Wtl.Defaults.Diameter;
+            var d = AppSettings.Instance.Wtl.Defaults;
+            InstallYear = d.Year;
+            Material = d.Material;
+            Diameter = d.Diameter;
+            IsAutoDepth = d.IsAutoDepth;
+            IsManualDepth = !d.IsAutoDepth;
+            BeginDepth = d.BeginDepth;
+            EndDepth = d.EndDepth;
+            IsUndetected = d.IsUndetected;
+            BeginGroundHeight = d.BeginGroundHeight;
+            EndGroundHeight = d.EndGroundHeight;
+            UseLeader = d.UseLeader;
 
             CreateCommand = new RelayCommand(ExecuteCreate);
             ModifyCommand = new RelayCommand(ExecuteModify);
+        }
+
+        /// <summary>현재 팔레트 값을 settings.json에 저장</summary>
+        public void SaveState()
+        {
+            var d = AppSettings.Instance.Wtl.Defaults;
+            d.Year = InstallYear;
+            d.Material = Material;
+            d.Diameter = Diameter;
+            d.IsAutoDepth = IsAutoDepth;
+            d.BeginDepth = BeginDepth;
+            d.EndDepth = EndDepth;
+            d.IsUndetected = IsUndetected;
+            d.BeginGroundHeight = BeginGroundHeight;
+            d.EndGroundHeight = EndGroundHeight;
+            d.UseLeader = UseLeader;
         }
 
         /// <summary>팔레트 값 → WtlInputData 변환</summary>

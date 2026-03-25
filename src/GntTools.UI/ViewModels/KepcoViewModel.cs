@@ -39,15 +39,24 @@ namespace GntTools.UI.ViewModels
 
         public KepcoViewModel()
         {
-            var s = AppSettings.Instance;
-            InstallYear = s.Kepco.Defaults.Year;
-            Material = s.Kepco.Defaults.Material;
+            var d = AppSettings.Instance.Kepco.Defaults;
+            InstallYear = d.Year;
+            Material = d.Material;
+            IsUndetected = d.IsUndetected;
 
             SelectSectionCommand = new RelayCommand(DoSelectSection);
             SelectBCommand = new RelayCommand(DoSelectBH);
             CreateCommand = new RelayCommand(DoCreate);
             ModifyCommand = new RelayCommand(DoModify);
             CheckCommand = new RelayCommand(DoCheck);
+        }
+
+        public void SaveState()
+        {
+            var d = AppSettings.Instance.Kepco.Defaults;
+            d.Year = InstallYear;
+            d.Material = Material;
+            d.IsUndetected = IsUndetected;
         }
 
         private void DoSelectSection()

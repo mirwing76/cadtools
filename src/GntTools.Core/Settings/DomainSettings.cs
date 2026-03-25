@@ -48,6 +48,30 @@ namespace GntTools.Core.Settings
         public string Diameter { get; set; } = "";
         [DataMember(Name = "useCode")]
         public string UseCode { get; set; } = "";
+
+        // Palette state persistence
+        [DataMember(Name = "isAutoDepth")]
+        public bool IsAutoDepth { get; set; }
+        [DataMember(Name = "beginDepth")]
+        public double BeginDepth { get; set; }
+        [DataMember(Name = "endDepth")]
+        public double EndDepth { get; set; }
+        [DataMember(Name = "isUndetected")]
+        public bool IsUndetected { get; set; }
+        [DataMember(Name = "beginGroundHeight")]
+        public double BeginGroundHeight { get; set; }
+        [DataMember(Name = "endGroundHeight")]
+        public double EndGroundHeight { get; set; }
+        [DataMember(Name = "useLeader")]
+        public bool UseLeader { get; set; }
+        [DataMember(Name = "isBoxPipe")]
+        public bool IsBoxPipe { get; set; }
+        [DataMember(Name = "boxWidth")]
+        public double BoxWidth { get; set; }
+        [DataMember(Name = "boxHeight")]
+        public double BoxHeight { get; set; }
+        [DataMember(Name = "lineCount")]
+        public int LineCount { get; set; } = 1;
     }
 
     [DataContract]
