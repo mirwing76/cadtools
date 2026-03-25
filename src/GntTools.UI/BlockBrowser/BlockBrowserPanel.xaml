@@ -145,10 +145,10 @@
                 </Expander>
 
                 <!-- 리스트 뷰 즐겨찾기 (IsGridView=false일 때) -->
-                <Expander Style="{StaticResource PropertyExpander}" Header="즐겨찾기"
-                          Visibility="{Binding FavoriteCount, Converter={StaticResource CountToVis}}">
+                <Expander Header="즐겨찾기">
                     <Expander.Style>
                         <Style TargetType="Expander" BasedOn="{StaticResource PropertyExpander}">
+                            <Setter Property="Visibility" Value="{Binding FavoriteCount, Converter={StaticResource CountToVis}}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsGridView}" Value="True">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -173,7 +173,7 @@
                 </Expander>
 
                 <!-- 리스트 뷰 블럭 (IsGridView=false일 때) -->
-                <Expander Style="{StaticResource PropertyExpander}" Header="블럭">
+                <Expander Header="블럭">
                     <Expander.Style>
                         <Style TargetType="Expander" BasedOn="{StaticResource PropertyExpander}">
                             <Style.Triggers>
