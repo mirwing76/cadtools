@@ -5,11 +5,11 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.Gis.Map;
 using Autodesk.Gis.Map.ObjectData;
-using Autodesk.Gis.Map.Constants;
 using Autodesk.Gis.Map.Project;
 using MapDataType = Autodesk.Gis.Map.Constants.DataType;
 using MapTable = Autodesk.Gis.Map.ObjectData.Table;
 using MapOpenMode = Autodesk.Gis.Map.Constants.OpenMode;
+using MapException = Autodesk.Gis.Map.MapException;
 using Autodesk.Gis.Map.Utilities;
 
 namespace GntTools.Core.Odt
