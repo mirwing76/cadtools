@@ -16,3 +16,21 @@
 - **파일**: `src/GntTools.UI/BlockBrowser/`
 - **구현일**: 2026-03-24
 - **비고**: AutoCAD 내장 블록 팔레트 성능 저하 버그 우회용
+
+## 2. UI 색상 시스템화
+
+- **설명**: 모든 WPF 팔레트의 하드코딩 색상을 SystemColors로 변경
+- **대상**: SwlPanel, BlockBrowserPanel, BlockThumbnailRenderer
+- **구현일**: 2026-03-25
+- **비고**: AutoCAD 다크/라이트 테마 자동 적응
+
+## 3. 블록 브라우저 강화
+
+- **명령어**: `GNTBLOCKS`
+- **추가 기능**:
+  - 정렬: 이름순 / 별칭순 / 즐겨찾기 우선
+  - 별칭: 우클릭 → 별칭 설정 (도면별 NOD 저장)
+  - 즐겨찾기: 우클릭 → 즐겨찾기 추가/제거 (도면별 NOD 저장)
+  - 그리드 크기: 크게(56px) / 중간(36px) / 작게(24px) 3단계 전환
+- **파일**: `src/GntTools.UI/BlockBrowser/`
+- **구현일**: 2026-03-25
