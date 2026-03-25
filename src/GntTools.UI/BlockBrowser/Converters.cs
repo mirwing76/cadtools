@@ -39,4 +39,20 @@ namespace GntTools.UI.BlockBrowser
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>bool 반전 → Visibility (true=Collapsed, false=Visible)</summary>
+    public class InverseBoolToVisConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool b && b)
+                return Visibility.Collapsed;
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

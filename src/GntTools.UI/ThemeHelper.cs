@@ -76,13 +76,22 @@ namespace GntTools.UI
             control.Background = Freeze(dark ? DarkBg   : LightBg);
 
             // 기본 컨트롤 스타일
+            var fg = Freeze(dark ? DarkText : LightText);
+            var inputBg = Freeze(dark ? Color.FromRgb(50, 58, 72) : Color.FromRgb(255, 255, 255));
+
             var checkStyle = new Style(typeof(CheckBox));
-            checkStyle.Setters.Add(new Setter(CheckBox.ForegroundProperty, Freeze(dark ? DarkText : LightText)));
+            checkStyle.Setters.Add(new Setter(CheckBox.ForegroundProperty, fg));
             control.Resources[typeof(CheckBox)] = checkStyle;
 
             var radioStyle = new Style(typeof(RadioButton));
-            radioStyle.Setters.Add(new Setter(RadioButton.ForegroundProperty, Freeze(dark ? DarkText : LightText)));
+            radioStyle.Setters.Add(new Setter(RadioButton.ForegroundProperty, fg));
             control.Resources[typeof(RadioButton)] = radioStyle;
+
+            var comboStyle = new Style(typeof(ComboBox));
+            comboStyle.Setters.Add(new Setter(ComboBox.ForegroundProperty, fg));
+            comboStyle.Setters.Add(new Setter(ComboBox.BackgroundProperty, inputBg));
+            comboStyle.Setters.Add(new Setter(ComboBox.BorderBrushProperty, Freeze(dark ? DarkBorder : LightBorder)));
+            control.Resources[typeof(ComboBox)] = comboStyle;
         }
 
         /// <summary>썸네일 배경색</summary>

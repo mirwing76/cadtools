@@ -10,93 +10,12 @@
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <local:CountToVisibilityConverter x:Key="CountToVis"/>
-
-            <!-- 블록 타일 (그리드 모드) -->
-            <DataTemplate x:Key="BlockGridTile">
-                <Border Margin="2" Padding="2"
-                        BorderThickness="2" CornerRadius="2"
-                        Background="{DynamicResource SectionHeaderBg}"
-                        Width="{Binding DataContext.TileWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                        MouseLeftButtonDown="OnBlockClick"
-                        MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="{DynamicResource GridBorder}"/>
-                            <Style.Triggers>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
-                                            <Binding/>
-                                            <Binding Path="DataContext.SelectedItem"
-                                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorder}"/>
-                                    <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <StackPanel HorizontalAlignment="Center">
-                        <Image Source="{Binding Thumbnail}"
-                               Width="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                               Height="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                               Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="{Binding DisplayName}"
-                                   Foreground="{DynamicResource TextFg}"
-                                   FontSize="10" TextTrimming="CharacterEllipsis"
-                                   HorizontalAlignment="Center" Margin="0,2,0,0"
-                                   ToolTip="{Binding Name}"/>
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
-
-            <!-- 블록 행 (리스트 모드) -->
-            <DataTemplate x:Key="BlockListRow">
-                <Border Margin="0" Padding="4,3"
-                        BorderBrush="{DynamicResource GridBorder}"
-                        BorderThickness="0,0,0,1"
-                        MouseLeftButtonDown="OnBlockClick"
-                        MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource RowHoverBg}"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
-                                            <Binding/>
-                                            <Binding Path="DataContext.SelectedItem"
-                                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Thumbnail}" Width="32" Height="32"
-                               Stretch="Uniform" Margin="0,0,8,0"/>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Foreground="{DynamicResource TextFg}" FontSize="12">
-                                <Run Text="{Binding FavoriteStar, Mode=OneWay}"/><Run Text="{Binding DisplayName, Mode=OneWay}"/>
-                            </TextBlock>
-                            <TextBlock Text="{Binding SubText}"
-                                       Foreground="{DynamicResource GrayTextFg}"
-                                       FontSize="10"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
+            <local:InverseBoolToVisConverter x:Key="InvBoolToVis"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <DockPanel>
-        <!-- 툴바 -->
+        <!-- Toolbar -->
         <Border DockPanel.Dock="Top" Background="{DynamicResource SectionHeaderBg}"
                 BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,0,0,1"
                 Padding="4,3">
@@ -109,10 +28,7 @@
                               Background="{DynamicResource SectionHeaderBg}"
                               BorderBrush="{DynamicResource GridBorder}"/>
                 <ComboBox ItemsSource="{Binding SortModeNames}" SelectedIndex="{Binding SortModeIndex}"
-                          Width="80" Margin="0,0,4,0"
-                          Foreground="{DynamicResource ValueFg}"
-                          Background="{DynamicResource PanelBg}"
-                          BorderBrush="{DynamicResource GridBorder}"/>
+                          Width="80" Margin="0,0,4,0"/>
                 <Button Content="{Binding SizeLabel}" Command="{Binding CycleSizeCommand}"
                         Style="{StaticResource PropertyButton}"/>
             </StackPanel>
@@ -144,7 +60,7 @@
             </Grid>
         </Border>
 
-        <!-- 상태바 -->
+        <!-- Status bar -->
         <Border DockPanel.Dock="Bottom" Background="{DynamicResource SectionHeaderBg}"
                 BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,1,0,0"
                 Padding="6,3">
@@ -154,63 +70,190 @@
             </TextBlock>
         </Border>
 
-        <!-- 본문 -->
+        <!-- Main content -->
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <!-- 즐겨찾기 섹션 -->
+                <!-- Favorites section (1 Expander, Grid/List inside) -->
                 <Expander Style="{StaticResource PropertyExpander}" Header="즐겨찾기"
                           Visibility="{Binding FavoriteCount, Converter={StaticResource CountToVis}}">
-                    <!-- 그리드 뷰 -->
-                    <ItemsControl ItemsSource="{Binding FavoriteBlocks}"
-                                  Visibility="{Binding IsGridView, Converter={StaticResource BoolToVis}}"
-                                  ItemTemplate="{StaticResource BlockGridTile}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                    <StackPanel>
+                        <!-- Grid view -->
+                        <ItemsControl ItemsSource="{Binding FavoriteBlocks}"
+                                      Visibility="{Binding IsGridView, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="2" Padding="2" BorderThickness="2" CornerRadius="2"
+                                            Width="{Binding DataContext.TileWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            MouseLeftButtonDown="OnBlockClick"
+                                            MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource GridBorder}"/>
+                                                <Setter Property="Background" Value="{DynamicResource SectionHeaderBg}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
+                                                                <Binding/>
+                                                                <Binding Path="DataContext.SelectedItem" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorder}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Image Source="{Binding Thumbnail}"
+                                                   Width="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   Height="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextFg}"
+                                                       FontSize="10" TextTrimming="CharacterEllipsis"
+                                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                                       ToolTip="{Binding Name}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!-- List view -->
+                        <ItemsControl ItemsSource="{Binding FavoriteBlocks}"
+                                      Visibility="{Binding IsGridView, Converter={StaticResource InvBoolToVis}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0" Padding="4,3"
+                                            BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,0,0,1"
+                                            MouseLeftButtonDown="OnBlockClick"
+                                            MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource RowHoverBg}"/>
+                                                    </Trigger>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
+                                                                <Binding/>
+                                                                <Binding Path="DataContext.SelectedItem" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Thumbnail}" Width="32" Height="32"
+                                                   Stretch="Uniform" Margin="0,0,8,0"/>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Foreground="{DynamicResource TextFg}" FontSize="12">
+                                                    <Run Text="{Binding FavoriteStar, Mode=OneWay}"/><Run Text="{Binding DisplayName, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding SubText}" Foreground="{DynamicResource GrayTextFg}" FontSize="10"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Expander>
 
-                <!-- 리스트 뷰 즐겨찾기 (IsGridView=false일 때) -->
-                <Expander Header="즐겨찾기">
-                    <Expander.Style>
-                        <Style TargetType="Expander" BasedOn="{StaticResource PropertyExpander}">
-                            <Setter Property="Visibility" Value="{Binding FavoriteCount, Converter={StaticResource CountToVis}}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsGridView}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Expander.Style>
-                    <ItemsControl ItemsSource="{Binding FavoriteBlocks}"
-                                  ItemTemplate="{StaticResource BlockListRow}"/>
-                </Expander>
-
-                <!-- 블럭 섹션 -->
+                <!-- Blocks section (1 Expander, Grid/List inside) -->
                 <Expander Style="{StaticResource PropertyExpander}" Header="블럭">
-                    <!-- 그리드 뷰 -->
-                    <ItemsControl ItemsSource="{Binding AllBlocks}"
-                                  Visibility="{Binding IsGridView, Converter={StaticResource BoolToVis}}"
-                                  ItemTemplate="{StaticResource BlockGridTile}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </Expander>
-
-                <!-- 리스트 뷰 블럭 (IsGridView=false일 때) -->
-                <Expander Header="블럭">
-                    <Expander.Style>
-                        <Style TargetType="Expander" BasedOn="{StaticResource PropertyExpander}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsGridView}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Expander.Style>
-                    <ItemsControl ItemsSource="{Binding AllBlocks}"
-                                  ItemTemplate="{StaticResource BlockListRow}"/>
+                    <StackPanel>
+                        <!-- Grid view -->
+                        <ItemsControl ItemsSource="{Binding AllBlocks}"
+                                      Visibility="{Binding IsGridView, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="2" Padding="2" BorderThickness="2" CornerRadius="2"
+                                            Width="{Binding DataContext.TileWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            MouseLeftButtonDown="OnBlockClick"
+                                            MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource GridBorder}"/>
+                                                <Setter Property="Background" Value="{DynamicResource SectionHeaderBg}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
+                                                                <Binding/>
+                                                                <Binding Path="DataContext.SelectedItem" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorder}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Image Source="{Binding Thumbnail}"
+                                                   Width="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   Height="{Binding DataContext.ThumbWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextFg}"
+                                                       FontSize="10" TextTrimming="CharacterEllipsis"
+                                                       HorizontalAlignment="Center" Margin="0,2,0,0"
+                                                       ToolTip="{Binding Name}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!-- List view -->
+                        <ItemsControl ItemsSource="{Binding AllBlocks}"
+                                      Visibility="{Binding IsGridView, Converter={StaticResource InvBoolToVis}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0" Padding="4,3"
+                                            BorderBrush="{DynamicResource GridBorder}" BorderThickness="0,0,0,1"
+                                            MouseLeftButtonDown="OnBlockClick"
+                                            MouseRightButtonDown="OnBlockRightClick" Cursor="Hand">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource RowHoverBg}"/>
+                                                    </Trigger>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{x:Static local:EqualityConverter.Instance}">
+                                                                <Binding/>
+                                                                <Binding Path="DataContext.SelectedItem" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Thumbnail}" Width="32" Height="32"
+                                                   Stretch="Uniform" Margin="0,0,8,0"/>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Foreground="{DynamicResource TextFg}" FontSize="12">
+                                                    <Run Text="{Binding FavoriteStar, Mode=OneWay}"/><Run Text="{Binding DisplayName, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding SubText}" Foreground="{DynamicResource GrayTextFg}" FontSize="10"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Expander>
             </StackPanel>
         </ScrollViewer>
