@@ -8,6 +8,7 @@ using Autodesk.Gis.Map.ObjectData;
 using Autodesk.Gis.Map.Constants;
 using Autodesk.Gis.Map.Project;
 using MapDataType = Autodesk.Gis.Map.Constants.DataType;
+using MapTable = Autodesk.Gis.Map.ObjectData.Table;
 using Autodesk.Gis.Map.Utilities;
 
 namespace GntTools.Core.Odt
@@ -49,21 +50,8 @@ namespace GntTools.Core.Odt
 
                 foreach (var field in schema.Fields)
                 {
-                    FieldDefinition fd = fieldDefs.Add(
+                    fieldDefs.Add(
                         field.Name, field.Description, field.DataType, 0);
-                    // 기본값 설정
-                    switch (field.DataType)
-                    {
-                        case MapDataType.Character:
-                            fd.SetDefaultValue("");
-                            break;
-                        case MapDataType.Real:
-                            fd.SetDefaultValue(0.0);
-                            break;
-                        case MapDataType.Integer:
-                            fd.SetDefaultValue(0);
-                            break;
-                    }
                 }
 
                 tables.Add(schema.TableName, fieldDefs, schema.Description, true);
@@ -119,7 +107,7 @@ namespace GntTools.Core.Odt
             try
             {
                 Tables tables = GetOdtTables();
-                Table table = tables[tableName];
+                MapTable table = tables[tableName];
                 Database db = Application.DocumentManager.MdiActiveDocument.Database;
 
                 // 체크리스트 #2: Entity를 ForWrite로 열어야 함
@@ -153,7 +141,7 @@ namespace GntTools.Core.Odt
             try
             {
                 Tables tables = GetOdtTables();
-                Table table = tables[tableName];
+                MapTable table = tables[tableName];
 
                 // 체크리스트 #9: Write용 Records는 OpenForWrite로 열기
                 // 체크리스트 #1: Records는 반드시 using 블록
@@ -171,16 +159,14 @@ namespace GntTools.Core.Odt
                             int idx = table.FieldDefinitions.GetColumnIndex(kvp.Key);
                             if (idx < 0) continue;
 
-                            MapValue val = rec[idx];
                             // 체크리스트 #8: Assign 타입과 DataType 일치
+                            MapValue val = rec[idx];
                             if (kvp.Value is string s)
                                 val.Assign(s);
                             else if (kvp.Value is double d)
                                 val.Assign(d);
                             else if (kvp.Value is int n)
                                 val.Assign(n);
-
-                            rec[idx] = val;
                         }
 
                         // 체크리스트 #5: UpdateRecord() 호출 필수
@@ -205,7 +191,7 @@ namespace GntTools.Core.Odt
             try
             {
                 Tables tables = GetOdtTables();
-                Table table = tables[tableName];
+                MapTable table = tables[tableName];
 
                 // 체크리스트 #1: using 블록
                 // 체크리스트 #9: 읽기는 OpenForRead
@@ -258,7 +244,7 @@ namespace GntTools.Core.Odt
             try
             {
                 Tables tables = GetOdtTables();
-                Table table = tables[tableName];
+                MapTable table = tables[tableName];
 
                 using (Records recs = table.GetObjectTableRecords(
                     0, entityId,
@@ -281,7 +267,7 @@ namespace GntTools.Core.Odt
             try
             {
                 Tables tables = GetOdtTables();
-                Table table = tables[tableName];
+                MapTable table = tables[tableName];
 
                 // 체크리스트 #9: 삭제는 OpenForWrite
                 using (Records recs = table.GetObjectTableRecords(
