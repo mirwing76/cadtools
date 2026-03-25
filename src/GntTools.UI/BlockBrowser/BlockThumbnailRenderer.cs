@@ -53,10 +53,13 @@ namespace GntTools.UI.BlockBrowser
                 {
                     double r = (g.Type == GeomType.Circle || g.Type == GeomType.Ellipse || g.Type == GeomType.Arc)
                         ? g.Radius : 0;
+                    // 텍스트: 높이만큼 위로, 폭은 높이×글자수로 근사
+                    double th = (g.Type == GeomType.Text) ? g.TextHeight : 0;
+                    double tw = (g.Type == GeomType.Text) ? g.TextHeight * Math.Max(g.TextContent.Length * 0.6, 1) : 0;
                     if (pt.X - r < minX) minX = pt.X - r;
                     if (pt.Y - r < minY) minY = pt.Y - r;
-                    if (pt.X + r > maxX) maxX = pt.X + r;
-                    if (pt.Y + r > maxY) maxY = pt.Y + r;
+                    if (pt.X + r + tw > maxX) maxX = pt.X + r + tw;
+                    if (pt.Y + r + th > maxY) maxY = pt.Y + r + th;
                 }
             }
 
@@ -102,6 +105,9 @@ namespace GntTools.UI.BlockBrowser
                             break;
                         case GeomType.Arc:
                             DrawArcGeometry(dc, pen, g, cx, cy, scale, thumbSize);
+                            break;
+                        case GeomType.Text:
+                            DrawTextGeometry(dc, g, cx, cy, scale, thumbSize);
                             break;
                     }
                 }
@@ -165,6 +171,33 @@ namespace GntTools.UI.BlockBrowser
                         double minorR = majorR * ellipse.RadiusRatio;
                         result.Add(new GeometryData(GeomType.Ellipse, color,
                             new[] { new Point2(c.X, c.Y) }, majorR, minorR));
+                    }
+                    else if (ent is DBText dbText)
+                    {
+                        var pos = dbText.Position.TransformBy(transform);
+                        string txt = dbText.TextString ?? "";
+                        double h = dbText.Height;
+                        if (txt.Length > 0 && h > 0)
+                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                    }
+                    else if (ent is MText mText)
+                    {
+                        var pos = mText.Location.TransformBy(transform);
+                        string txt = mText.Contents ?? "";
+                        double h = mText.TextHeight;
+                        if (txt.Length > 0 && h > 0)
+                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                    }
+                    else if (ent is AttributeDefinition attDef)
+                    {
+                        if (!attDef.Invisible)
+                        {
+                            var pos = attDef.Position.TransformBy(transform);
+                            string txt = attDef.Tag ?? "";
+                            double h = attDef.Height;
+                            if (txt.Length > 0 && h > 0)
+                                result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                        }
                     }
                     else if (ent is BlockReference blkRef)
                     {
@@ -298,6 +331,23 @@ namespace GntTools.UI.BlockBrowser
             dc.DrawGeometry(null, pen, sg);
         }
 
+        private void DrawTextGeometry(DrawingContext dc, GeometryData g,
+            double cx, double cy, double scale, double thumbSize)
+        {
+            var pos = ToThumb(g.Points[0], cx, cy, scale, thumbSize);
+            double fontSize = Math.Max(g.TextHeight * scale, 4); // 최소 4px
+            fontSize = Math.Min(fontSize, thumbSize * 0.3); // 최대 썸네일의 30%
+
+            var ft = new FormattedText(g.TextContent,
+                System.Globalization.CultureInfo.CurrentCulture,
+                System.Windows.FlowDirection.LeftToRight,
+                new Typeface("Segoe UI"), fontSize,
+                new SolidColorBrush(g.Color), 1.0);
+
+            // Y축 반전 — 텍스트 기준점에서 위로 그려야 함
+            dc.DrawText(ft, new Point(pos.X, pos.Y - ft.Height));
+        }
+
         private DrawingImage CreatePlaceholder(double thumbSize)
         {
             var dv = new DrawingVisual();
@@ -319,7 +369,7 @@ namespace GntTools.UI.BlockBrowser
         }
 
         // 내부 타입
-        private enum GeomType { Line, Circle, Arc, Ellipse }
+        private enum GeomType { Line, Circle, Arc, Ellipse, Text }
 
         private struct Point2
         {
@@ -335,6 +385,8 @@ namespace GntTools.UI.BlockBrowser
             public double Radius;
             public double MinorRadius; // Ellipse용
             public double StartAngle, EndAngle;
+            public string TextContent; // Text용
+            public double TextHeight;  // Text용
 
             public GeometryData(GeomType type, Color color, Point2[] points,
                 double radius = 0, double startAngleOrMinorR = 0, double endAngle = 0)
@@ -348,6 +400,14 @@ namespace GntTools.UI.BlockBrowser
                     StartAngle = startAngleOrMinorR;
                     EndAngle = endAngle;
                 }
+            }
+
+            /// <summary>텍스트 엔티티용 생성자</summary>
+            public GeometryData(Color color, Point2 position, string text, double height)
+            {
+                Type = GeomType.Text; Color = color;
+                Points = new[] { position };
+                TextContent = text; TextHeight = height;
             }
         }
     }
