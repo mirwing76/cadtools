@@ -20,9 +20,9 @@ namespace GntTools.UI.BlockBrowser
             var vm = DataContext as BlockBrowserViewModel;
             if (vm == null) return;
 
-            // 선택 + 삽입 (싱글 클릭)
+            // 선택 + 삽입 (싱글 클릭, 중복 방지)
             vm.SelectBlock(item);
-            vm.InsertBlock(item);
+            vm.RequestInsert(item);
         }
 
         private void OnBlockRightClick(object sender, MouseButtonEventArgs e)

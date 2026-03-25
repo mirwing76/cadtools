@@ -38,6 +38,10 @@ namespace GntTools.UI.BlockBrowser
             set => SetProperty(ref _selectedItem, value);
         }
 
+        // Insert state
+        private bool _isInserting;
+        private BlockItem _pendingInsert;
+
         // 뷰 상태
         private bool _isGridView = true;
         public bool IsGridView
@@ -251,73 +255,119 @@ namespace GntTools.UI.BlockBrowser
             Refresh();
         }
 
-        /// <summary>블록 삽입 (Scale, Rotation, Explode 옵션 적용)</summary>
-        public void InsertBlock(BlockItem item)
+        /// <summary>블록 삽입 요청 (중복 방지, 새 선택 시 이전 취소)</summary>
+        public void RequestInsert(BlockItem item)
         {
-            var doc = Application.DocumentManager.MdiActiveDocument;
-            if (doc == null) return;
-
-            using (doc.LockDocument())
+            if (_isInserting)
             {
-                var ed = doc.Editor;
+                // 같은 블록이면 무시
+                if (ReferenceEquals(item, SelectedItem)) return;
 
-                // 1. Insertion point
-                var ptResult = ed.GetPoint("\nSpecify insertion point: ");
-                if (ptResult.Status != PromptStatus.OK) return;
+                // 다른 블록 → 이전 삽입 취소하고 새 블록 대기
+                _pendingInsert = item;
+                CancelCurrentInsert();
+                return;
+            }
 
-                // 2. Rotation — 0이 아니고 입력 안 했으면 마우스로 각도 지정
-                double rotation = InsertRotation;
-                if (rotation == 0)
+            DoInsert(item);
+        }
+
+        private void CancelCurrentInsert()
+        {
+            try
+            {
+                var doc = Application.DocumentManager.MdiActiveDocument;
+                if (doc != null)
+                    doc.SendStringToExecute("\x03\x03", true, false, false); // ESC ESC
+            }
+            catch { }
+        }
+
+        private void DoInsert(BlockItem item)
+        {
+            _isInserting = true;
+            _pendingInsert = null;
+
+            try
+            {
+                var doc = Application.DocumentManager.MdiActiveDocument;
+                if (doc == null) return;
+
+                using (doc.LockDocument())
                 {
-                    var angOpt = new PromptAngleOptions("\nSpecify rotation angle <0>: ");
-                    angOpt.DefaultValue = 0;
-                    angOpt.UseDefaultValue = true;
-                    angOpt.BasePoint = ptResult.Value;
-                    angOpt.UseBasePoint = true;
-                    var angResult = ed.GetAngle(angOpt);
-                    if (angResult.Status == PromptStatus.OK)
-                        rotation = angResult.Value;
-                }
-                else
-                {
-                    rotation = InsertRotation * Math.PI / 180.0; // degree to radian
-                }
+                    var ed = doc.Editor;
 
-                double scale = InsertScale;
-                if (scale <= 0) scale = 1.0;
+                    // 1. Insertion point
+                    var ptResult = ed.GetPoint($"\nInsert [{item.DisplayName}] - Specify point: ");
+                    if (ptResult.Status != PromptStatus.OK) return;
 
-                var db = doc.Database;
-                using (var tr = db.TransactionManager.StartTransaction())
-                {
-                    var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
-                    var ms = (BlockTableRecord)tr.GetObject(
-                        bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
-
-                    var blkRef = new BlockReference(ptResult.Value, item.BlockId);
-                    blkRef.ScaleFactors = new Autodesk.AutoCAD.Geometry.Scale3d(scale, scale, scale);
-                    blkRef.Rotation = rotation;
-
-                    ms.AppendEntity(blkRef);
-                    tr.AddNewlyCreatedDBObject(blkRef, true);
-
-                    // Explode
-                    if (ExplodeOnInsert)
+                    // 2. Rotation
+                    double rotation = InsertRotation;
+                    if (rotation == 0)
                     {
-                        var exploded = new DBObjectCollection();
-                        blkRef.Explode(exploded);
-                        foreach (DBObject obj in exploded)
-                        {
-                            var ent = obj as Entity;
-                            if (ent != null)
-                            {
-                                ms.AppendEntity(ent);
-                                tr.AddNewlyCreatedDBObject(ent, true);
-                            }
-                        }
-                        blkRef.Erase();
+                        var angOpt = new PromptAngleOptions("\nSpecify rotation angle <0>: ");
+                        angOpt.DefaultValue = 0;
+                        angOpt.UseDefaultValue = true;
+                        angOpt.BasePoint = ptResult.Value;
+                        angOpt.UseBasePoint = true;
+                        var angResult = ed.GetAngle(angOpt);
+                        if (angResult.Status == PromptStatus.OK)
+                            rotation = angResult.Value;
+                    }
+                    else
+                    {
+                        rotation = InsertRotation * Math.PI / 180.0;
                     }
 
-                    tr.Commit();
+                    double scale = InsertScale;
+                    if (scale <= 0) scale = 1.0;
+
+                    var db = doc.Database;
+                    using (var tr = db.TransactionManager.StartTransaction())
+                    {
+                        var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
+                        var ms = (BlockTableRecord)tr.GetObject(
+                            bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
+
+                        var blkRef = new BlockReference(ptResult.Value, item.BlockId);
+                        blkRef.ScaleFactors = new Autodesk.AutoCAD.Geometry.Scale3d(scale, scale, scale);
+                        blkRef.Rotation = rotation;
+
+                        ms.AppendEntity(blkRef);
+                        tr.AddNewlyCreatedDBObject(blkRef, true);
+
+                        if (ExplodeOnInsert)
+                        {
+                            var exploded = new DBObjectCollection();
+                            blkRef.Explode(exploded);
+                            foreach (DBObject obj in exploded)
+                            {
+                                var ent = obj as Entity;
+                                if (ent != null)
+                                {
+                                    ms.AppendEntity(ent);
+                                    tr.AddNewlyCreatedDBObject(ent, true);
+                                }
+                            }
+                            blkRef.Erase();
+                        }
+
+                        tr.Commit();
+                    }
+                }
+            }
+            catch { }
+            finally
+            {
+                _isInserting = false;
+
+                // 대기 중인 블록이 있으면 이어서 삽입
+                if (_pendingInsert != null)
+                {
+                    var next = _pendingInsert;
+                    _pendingInsert = null;
+                    SelectBlock(next);
+                    DoInsert(next);
                 }
             }
         }
