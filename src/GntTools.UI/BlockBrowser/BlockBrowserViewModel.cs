@@ -311,6 +311,7 @@ namespace GntTools.UI.BlockBrowser
                         angOpt.BasePoint = ptResult.Value;
                         angOpt.UseBasePoint = true;
                         var angResult = ed.GetAngle(angOpt);
+                        if (angResult.Status == PromptStatus.Cancel) return; // ESC → cancel
                         if (angResult.Status == PromptStatus.OK)
                             rotation = angResult.Value;
                     }
