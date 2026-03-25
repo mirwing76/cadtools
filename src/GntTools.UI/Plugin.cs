@@ -2,9 +2,6 @@ using Autodesk.AutoCAD.Runtime;
 
 [assembly: ExtensionApplication(typeof(GntTools.UI.Plugin))]
 [assembly: CommandClass(typeof(GntTools.UI.Commands.PaletteCommands))]
-[assembly: CommandClass(typeof(GntTools.Wtl.WtlCommands))]
-[assembly: CommandClass(typeof(GntTools.Swl.SwlCommands))]
-[assembly: CommandClass(typeof(GntTools.Kepco.KepcoCommands))]
 
 namespace GntTools.UI
 {
