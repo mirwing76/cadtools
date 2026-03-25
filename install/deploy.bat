@@ -2,7 +2,7 @@
 REM install/deploy.bat
 REM GntTools 배포 스크립트
 
-set TARGET=C:\GntTools
+set TARGET=D:\CadSupport\lisp\net
 set SOURCE=..\src\GntTools.UI\bin\Release
 
 echo === GntTools 배포 ===

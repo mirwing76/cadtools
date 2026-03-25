@@ -4,6 +4,6 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Autodesk\AutoCAD\R23.1\ACAD-2001:409\Applications\GntTools]
 "DESCRIPTION"="GntTools - AutoCAD Map 3D 관로 속성입력 도구"
-"LOADER"="C:\\GntTools\\GntTools.UI.dll"
+"LOADER"="D:\\CadSupport\\lisp\\net\\GntTools.UI.dll"
 "LOADCTRLS"=dword:00000002
 "MANAGED"=dword:00000001
