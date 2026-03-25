@@ -307,7 +307,7 @@ namespace GntTools.UI.BlockBrowser
                     null, new Rect(0, 0, ThumbSize, ThumbSize));
                 var ft = new FormattedText("No Preview",
                     System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
+                    System.Windows.FlowDirection.LeftToRight,
                     new Typeface("Segoe UI"), 10, Brushes.Gray,
                     1.0); // pixelsPerDip — 논리 단위 렌더링이므로 1.0 사용
                 dc.DrawText(ft, new Point(
