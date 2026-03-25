@@ -11,16 +11,21 @@ namespace GntTools.UI.BlockBrowser
             InitializeComponent();
         }
 
-        private void OnBlockMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnBlockClick(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount < 2) return;
-
             var fe = sender as FrameworkElement;
             var item = fe?.DataContext as BlockItem;
             if (item == null) return;
 
             var vm = DataContext as BlockBrowserViewModel;
-            vm?.InsertBlock(item);
+            if (vm == null) return;
+
+            // 싱글 클릭: 선택
+            vm.SelectBlock(item);
+
+            // 더블 클릭: 삽입
+            if (e.ClickCount >= 2)
+                vm.InsertBlock(item);
         }
 
         private void OnBlockRightClick(object sender, MouseButtonEventArgs e)
@@ -32,25 +37,25 @@ namespace GntTools.UI.BlockBrowser
             var vm = DataContext as BlockBrowserViewModel;
             if (vm == null) return;
 
+            vm.SelectBlock(item);
+
             var menu = new ContextMenu();
 
-            // 별칭 설정
-            var aliasItem = new MenuItem { Header = "별칭 설정..." };
+            var aliasItem = new MenuItem { Header = "Set Alias..." };
             aliasItem.Click += (s, args) =>
             {
                 string current = item.Alias ?? "";
                 string input = Microsoft.VisualBasic.Interaction.InputBox(
-                    "블록 별칭을 입력하세요 (빈 값이면 삭제):",
-                    "별칭 설정", current);
+                    "Enter block alias (empty to remove):",
+                    "Set Alias", current);
                 if (input != current)
                     vm.SetAlias(item, input);
             };
             menu.Items.Add(aliasItem);
 
-            // 즐겨찾기 토글
             var favItem = new MenuItem
             {
-                Header = item.IsFavorite ? "즐겨찾기 제거" : "즐겨찾기 추가"
+                Header = item.IsFavorite ? "Remove from Favorites" : "Add to Favorites"
             };
             favItem.Click += (s, args) => vm.ToggleFavorite(item);
             menu.Items.Add(favItem);

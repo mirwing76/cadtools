@@ -177,16 +177,18 @@ namespace GntTools.UI.BlockBrowser
                         var pos = dbText.Position.TransformBy(transform);
                         string txt = dbText.TextString ?? "";
                         double h = dbText.Height;
+                        string font = ResolveFont(dbText.TextStyleId, tr);
                         if (txt.Length > 0 && h > 0)
-                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h, font));
                     }
                     else if (ent is MText mText)
                     {
                         var pos = mText.Location.TransformBy(transform);
                         string txt = mText.Contents ?? "";
                         double h = mText.TextHeight;
+                        string font = ResolveFont(mText.TextStyleId, tr);
                         if (txt.Length > 0 && h > 0)
-                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                            result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h, font));
                     }
                     else if (ent is AttributeDefinition attDef)
                     {
@@ -195,8 +197,9 @@ namespace GntTools.UI.BlockBrowser
                             var pos = attDef.Position.TransformBy(transform);
                             string txt = attDef.Tag ?? "";
                             double h = attDef.Height;
+                            string font = ResolveFont(attDef.TextStyleId, tr);
                             if (txt.Length > 0 && h > 0)
-                                result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h));
+                                result.Add(new GeometryData(color, new Point2(pos.X, pos.Y), txt, h, font));
                         }
                     }
                     else if (ent is BlockReference blkRef)
@@ -291,6 +294,34 @@ namespace GntTools.UI.BlockBrowser
             return AciColorTable.FromAcadColor(acadColor);
         }
 
+        /// <summary>TextStyleId → WPF 폰트 패밀리명 변환</summary>
+        private string ResolveFont(ObjectId textStyleId, Transaction tr)
+        {
+            try
+            {
+                if (textStyleId.IsNull) return "Segoe UI";
+                var tsr = tr.GetObject(textStyleId, OpenMode.ForRead) as TextStyleTableRecord;
+                if (tsr == null) return "Segoe UI";
+
+                // TrueType 폰트명 우선
+                string font = tsr.Font.TypeFace;
+                if (!string.IsNullOrEmpty(font)) return font;
+
+                // SHX 파일명 → 대체 폰트
+                string fileName = tsr.FileName;
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    string lower = fileName.ToLowerInvariant();
+                    if (lower.Contains("romans") || lower.Contains("simplex"))
+                        return "Arial";
+                    if (lower.Contains("gothic") || lower.Contains("complex"))
+                        return "Arial";
+                }
+                return "Segoe UI";
+            }
+            catch { return "Segoe UI"; }
+        }
+
         private Point ToThumb(Point2 pt, double cx, double cy, double scale, double thumbSize)
         {
             double x = (pt.X - cx) * scale + thumbSize / 2.0;
@@ -341,7 +372,7 @@ namespace GntTools.UI.BlockBrowser
             var ft = new FormattedText(g.TextContent,
                 System.Globalization.CultureInfo.CurrentCulture,
                 System.Windows.FlowDirection.LeftToRight,
-                new Typeface("Segoe UI"), fontSize,
+                new Typeface(g.FontFamily ?? "Segoe UI"), fontSize,
                 new SolidColorBrush(g.Color), 1.0);
 
             // Y축 반전 — 텍스트 기준점에서 위로 그려야 함
@@ -387,6 +418,7 @@ namespace GntTools.UI.BlockBrowser
             public double StartAngle, EndAngle;
             public string TextContent; // Text용
             public double TextHeight;  // Text용
+            public string FontFamily;  // Text 폰트명
 
             public GeometryData(GeomType type, Color color, Point2[] points,
                 double radius = 0, double startAngleOrMinorR = 0, double endAngle = 0)
@@ -403,11 +435,12 @@ namespace GntTools.UI.BlockBrowser
             }
 
             /// <summary>텍스트 엔티티용 생성자</summary>
-            public GeometryData(Color color, Point2 position, string text, double height)
+            public GeometryData(Color color, Point2 position, string text, double height, string fontFamily = "Segoe UI")
             {
                 Type = GeomType.Text; Color = color;
                 Points = new[] { position };
                 TextContent = text; TextHeight = height;
+                FontFamily = fontFamily ?? "Segoe UI";
             }
         }
     }

@@ -71,6 +71,7 @@
     <Compile Include="BlockBrowser\AciColorTable.cs" />
     <Compile Include="BlockBrowser\BlockThumbnailRenderer.cs" />
     <Compile Include="BlockBrowser\BlockBrowserViewModel.cs" />
+    <Compile Include="BlockBrowser\Converters.cs" />
     <Compile Include="BlockBrowser\BlockBrowserPanel.xaml.cs">
       <DependentUpon>BlockBrowserPanel.xaml</DependentUpon>
     </Compile>

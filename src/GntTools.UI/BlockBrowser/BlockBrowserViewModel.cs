@@ -16,27 +16,27 @@ namespace GntTools.UI.BlockBrowser
     {
         private readonly BlockThumbnailRenderer _renderer = new BlockThumbnailRenderer();
 
-        public ObservableCollection<BlockItem> Blocks { get; }
+        // 즐겨찾기 / 전체 분리 컬렉션
+        public ObservableCollection<BlockItem> FavoriteBlocks { get; }
+            = new ObservableCollection<BlockItem>();
+        public ObservableCollection<BlockItem> AllBlocks { get; }
             = new ObservableCollection<BlockItem>();
 
-        private ICollectionView _sortedBlocks;
-        public ICollectionView SortedBlocks
-        {
-            get
-            {
-                if (_sortedBlocks == null)
-                {
-                    _sortedBlocks = CollectionViewSource.GetDefaultView(Blocks);
-                    _sortedBlocks.SortDescriptions.Add(
-                        new SortDescription("DisplayName", ListSortDirection.Ascending));
-                }
-                return _sortedBlocks;
-            }
-        }
+        // 기존 호환용
+        public ObservableCollection<BlockItem> Blocks { get; }
+            = new ObservableCollection<BlockItem>();
 
         // 별칭/즐겨찾기 데이터
         private Dictionary<string, string> _aliases = new Dictionary<string, string>();
         private HashSet<string> _favorites = new HashSet<string>();
+
+        // 선택 상태
+        private BlockItem _selectedItem;
+        public BlockItem SelectedItem
+        {
+            get => _selectedItem;
+            set => SetProperty(ref _selectedItem, value);
+        }
 
         // 뷰 상태
         private bool _isGridView = true;
@@ -53,6 +53,13 @@ namespace GntTools.UI.BlockBrowser
             set => SetProperty(ref _blockCount, value);
         }
 
+        private int _favoriteCount;
+        public int FavoriteCount
+        {
+            get => _favoriteCount;
+            set => SetProperty(ref _favoriteCount, value);
+        }
+
         // 정렬
         private int _sortModeIndex;
         public int SortModeIndex
@@ -61,7 +68,7 @@ namespace GntTools.UI.BlockBrowser
             set { SetProperty(ref _sortModeIndex, value); ApplySort(); }
         }
 
-        public string[] SortModeNames { get; } = { "이름순", "별칭순", "즐겨찾기 우선" };
+        public string[] SortModeNames { get; } = { "이름순", "별칭순" };
 
         // 크기
         private static readonly double[] ThumbSizes = { 56, 36, 24 };
@@ -96,21 +103,22 @@ namespace GntTools.UI.BlockBrowser
 
         private void ApplySort()
         {
-            SortedBlocks.SortDescriptions.Clear();
+            SortBlocks(FavoriteBlocks);
+            SortBlocks(AllBlocks);
+        }
+
+        private void SortBlocks(ObservableCollection<BlockItem> collection)
+        {
+            var view = CollectionViewSource.GetDefaultView(collection);
+            view.SortDescriptions.Clear();
             switch (_sortModeIndex)
             {
                 case 0: // 이름순
-                    SortedBlocks.SortDescriptions.Add(
+                    view.SortDescriptions.Add(
                         new SortDescription("Name", ListSortDirection.Ascending));
                     break;
                 case 1: // 별칭순
-                    SortedBlocks.SortDescriptions.Add(
-                        new SortDescription("DisplayName", ListSortDirection.Ascending));
-                    break;
-                case 2: // 즐겨찾기 우선
-                    SortedBlocks.SortDescriptions.Add(
-                        new SortDescription("IsFavorite", ListSortDirection.Descending));
-                    SortedBlocks.SortDescriptions.Add(
+                    view.SortDescriptions.Add(
                         new SortDescription("DisplayName", ListSortDirection.Ascending));
                     break;
             }
@@ -118,6 +126,8 @@ namespace GntTools.UI.BlockBrowser
 
         public void Refresh()
         {
+            FavoriteBlocks.Clear();
+            AllBlocks.Clear();
             Blocks.Clear();
             _renderer.ClearCache();
 
@@ -128,7 +138,6 @@ namespace GntTools.UI.BlockBrowser
             {
                 var db = doc.Database;
 
-                // NOD에서 별칭/즐겨찾기 로드
                 _aliases = BlockDataStore.LoadAliases(db);
                 _favorites = BlockDataStore.LoadFavorites(db);
 
@@ -149,14 +158,20 @@ namespace GntTools.UI.BlockBrowser
                         string alias = null;
                         _aliases.TryGetValue(btr.Name, out alias);
 
-                        Blocks.Add(new BlockItem
+                        var item = new BlockItem
                         {
                             Name = btr.Name,
                             BlockId = btrId,
                             Thumbnail = thumbnail,
                             Alias = alias,
                             IsFavorite = _favorites.Contains(btr.Name)
-                        });
+                        };
+
+                        Blocks.Add(item);
+                        if (item.IsFavorite)
+                            FavoriteBlocks.Add(item);
+                        else
+                            AllBlocks.Add(item);
                     }
 
                     tr.Commit();
@@ -164,11 +179,17 @@ namespace GntTools.UI.BlockBrowser
             }
             catch (Exception ex)
             {
-                doc.Editor.WriteMessage($"\n블록 목록 로드 실패: {ex.Message}");
+                doc.Editor.WriteMessage($"\nBlock list load failed: {ex.Message}");
             }
 
-            BlockCount = Blocks.Count;
+            BlockCount = AllBlocks.Count;
+            FavoriteCount = FavoriteBlocks.Count;
             ApplySort();
+        }
+
+        public void SelectBlock(BlockItem item)
+        {
+            SelectedItem = item;
         }
 
         public void SetAlias(BlockItem item, string alias)
@@ -187,7 +208,7 @@ namespace GntTools.UI.BlockBrowser
             }
 
             item.Alias = string.IsNullOrWhiteSpace(alias) ? null : alias.Trim();
-            SortedBlocks.Refresh();
+            Refresh();
         }
 
         public void ToggleFavorite(BlockItem item)
@@ -205,11 +226,10 @@ namespace GntTools.UI.BlockBrowser
                 BlockDataStore.SaveFavorites(doc.Database, _favorites);
             }
 
-            item.IsFavorite = _favorites.Contains(item.Name);
-            SortedBlocks.Refresh();
+            Refresh();
         }
 
-        /// <summary>블록 삽입 — PaletteSet에서 호출되므로 LockDocument 필수</summary>
+        /// <summary>블록 삽입</summary>
         public void InsertBlock(BlockItem item)
         {
             var doc = Application.DocumentManager.MdiActiveDocument;
@@ -218,7 +238,7 @@ namespace GntTools.UI.BlockBrowser
             using (doc.LockDocument())
             {
                 var ed = doc.Editor;
-                var pr = ed.GetPoint("\n블록 삽입점을 지정하세요: ");
+                var pr = ed.GetPoint("\nSpecify insertion point: ");
                 if (pr.Status != PromptStatus.OK) return;
 
                 var db = doc.Database;
