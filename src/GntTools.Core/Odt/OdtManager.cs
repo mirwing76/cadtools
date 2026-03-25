@@ -7,6 +7,7 @@ using Autodesk.Gis.Map;
 using Autodesk.Gis.Map.ObjectData;
 using Autodesk.Gis.Map.Constants;
 using Autodesk.Gis.Map.Project;
+using MapDataType = Autodesk.Gis.Map.Constants.DataType;
 using Autodesk.Gis.Map.Utilities;
 
 namespace GntTools.Core.Odt
@@ -53,13 +54,13 @@ namespace GntTools.Core.Odt
                     // 기본값 설정
                     switch (field.DataType)
                     {
-                        case DataType.Character:
+                        case MapDataType.Character:
                             fd.SetDefaultValue("");
                             break;
-                        case DataType.Real:
+                        case MapDataType.Real:
                             fd.SetDefaultValue(0.0);
                             break;
-                        case DataType.Integer:
+                        case MapDataType.Integer:
                             fd.SetDefaultValue(0);
                             break;
                     }
@@ -223,13 +224,13 @@ namespace GntTools.Core.Odt
                             MapValue val = rec[i];
                             switch (val.Type)
                             {
-                                case DataType.Character:
+                                case MapDataType.Character:
                                     result[i] = val.StrValue ?? "";
                                     break;
-                                case DataType.Integer:
+                                case MapDataType.Integer:
                                     result[i] = val.Int32Value.ToString();
                                     break;
-                                case DataType.Real:
+                                case MapDataType.Real:
                                     result[i] = val.DoubleValue.ToString();
                                     break;
                                 default:
